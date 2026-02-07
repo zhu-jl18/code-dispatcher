@@ -62,9 +62,9 @@ func TestExtractFilesChanged(t *testing.T) {
 		want []string
 	}{
 		{"root file", "Modified: main.go\n", []string{"main.go"}},
-		{"path file", "Created: codeagent-wrapper/utils.go\n", []string{"codeagent-wrapper/utils.go"}},
-		{"at prefix", "Updated: @codeagent-wrapper/main.go\n", []string{"codeagent-wrapper/main.go"}},
-		{"token scan", "Files: @main.go, @codeagent-wrapper/utils.go\n", []string{"main.go", "codeagent-wrapper/utils.go"}},
+		{"path file", "Created: fish-agent-wrapper/utils.go\n", []string{"fish-agent-wrapper/utils.go"}},
+		{"at prefix", "Updated: @fish-agent-wrapper/main.go\n", []string{"fish-agent-wrapper/main.go"}},
+		{"token scan", "Files: @main.go, @fish-agent-wrapper/utils.go\n", []string{"main.go", "fish-agent-wrapper/utils.go"}},
 		{"space path", "Modified: dir/with space/file.go\n", []string{"dir/with space/file.go"}},
 	}
 

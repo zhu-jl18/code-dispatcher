@@ -84,28 +84,6 @@ func TestResumeConversation_AllBackends(t *testing.T) {
 				return nil
 			},
 		},
-		{
-			name:      "opencode",
-			backend:   OpencodeBackend{},
-			sessionID: "sid_opencode",
-			newOutput: `{"type":"text","sessionID":"sid_opencode","part":{"type":"text","text":"M1"}}` + "\n" +
-				`{"type":"step_finish","sessionID":"sid_opencode","part":{"type":"step-finish","reason":"stop"}}` + "\n",
-			resumeOutput: `{"type":"text","sessionID":"sid_opencode","part":{"type":"text","text":"M2"}}` + "\n" +
-				`{"type":"step_finish","sessionID":"sid_opencode","part":{"type":"step-finish","reason":"stop"}}` + "\n",
-			checkNewArgs: func(args []string) error {
-				if strings.Contains(strings.Join(args, " "), " -s ") {
-					return fmt.Errorf("unexpected -s in args: %v", args)
-				}
-				return nil
-			},
-			checkResArgs: func(args []string, sid string) error {
-				joined := strings.Join(args, " ")
-				if !strings.Contains(joined, " -s "+sid+" ") {
-					return fmt.Errorf("missing -s %s in args: %v", sid, args)
-				}
-				return nil
-			},
-		},
 	}
 
 	for _, tt := range cases {
@@ -183,7 +161,7 @@ func TestRunParallel_AllBackends_NewMode(t *testing.T) {
 	t.Setenv("USERPROFILE", home)
 	t.Setenv("CODEAGENT_CLAUDE_DIR", t.TempDir())
 
-	os.Args = []string{"codeagent-wrapper", "--parallel"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	stdinReader = bytes.NewReader([]byte(
 		`---TASK---
 id: codex
@@ -200,11 +178,7 @@ id: gemini
 backend: gemini
 ---CONTENT---
 hello-gemini
----TASK---
-id: opencode
-backend: opencode
----CONTENT---
-hello-opencode`,
+`,
 	))
 
 	var (
@@ -241,13 +215,6 @@ hello-opencode`,
 			}
 			out := `{"type":"result","session_id":"sid_gemini","status":"success","content":"OK"}` + "\n"
 			return newFakeCmd(fakeCmdConfig{StdoutPlan: []fakeStdoutEvent{{Data: out}}})
-		case "opencode":
-			if strings.Contains(joined, " -s ") {
-				runErr = fmt.Errorf("opencode new unexpectedly contains -s: %v", args)
-			}
-			out := `{"type":"text","sessionID":"sid_opencode","part":{"type":"text","text":"OK"}}` + "\n" +
-				`{"type":"step_finish","sessionID":"sid_opencode","part":{"type":"step-finish","reason":"stop"}}` + "\n"
-			return newFakeCmd(fakeCmdConfig{StdoutPlan: []fakeStdoutEvent{{Data: out}}})
 		default:
 			runErr = fmt.Errorf("unexpected command: %s (args=%v)", name, args)
 			return newFakeCmd(fakeCmdConfig{})
@@ -263,14 +230,14 @@ hello-opencode`,
 	if runErr != nil {
 		t.Fatalf("runner error: %v", runErr)
 	}
-	for _, cmd := range []string{"codex", "claude", "gemini", "opencode"} {
+	for _, cmd := range []string{"codex", "claude", "gemini"} {
 		if !seenCmd[cmd] {
 			t.Fatalf("did not run backend %q", cmd)
 		}
 	}
 
 	payload := parseIntegrationOutput(t, out)
-	if payload.Summary.Total != 4 || payload.Summary.Failed != 0 || payload.Summary.Success != 4 {
+	if payload.Summary.Total != 3 || payload.Summary.Failed != 0 || payload.Summary.Success != 3 {
 		t.Fatalf("unexpected summary: %+v (out=%q)", payload.Summary, out)
 	}
 }
@@ -283,7 +250,7 @@ func TestRunParallel_AllBackends_ResumeMode(t *testing.T) {
 	t.Setenv("USERPROFILE", home)
 	t.Setenv("CODEAGENT_CLAUDE_DIR", t.TempDir())
 
-	os.Args = []string{"codeagent-wrapper", "--parallel"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	stdinReader = bytes.NewReader([]byte(
 		`---TASK---
 id: codex
@@ -303,13 +270,7 @@ backend: gemini
 session_id: sid_gemini
 ---CONTENT---
 resume-gemini
----TASK---
-id: opencode
-backend: opencode
-session_id: sid_opencode
----CONTENT---
-line1
-line2`,
+`,
 	))
 
 	var (
@@ -346,17 +307,6 @@ line2`,
 			}
 			out := `{"type":"result","session_id":"sid_gemini","status":"success","content":"OK"}` + "\n"
 			return newFakeCmd(fakeCmdConfig{StdoutPlan: []fakeStdoutEvent{{Data: out}}})
-		case "opencode":
-			// Important: opencode should still pass the prompt as positional args even if it contains newlines.
-			if !strings.Contains(joined, " -s sid_opencode ") {
-				runErr = fmt.Errorf("opencode resume missing -s sid_opencode: %v", args)
-			}
-			if len(args) == 0 || args[len(args)-1] != "line1\nline2" {
-				runErr = fmt.Errorf("opencode resume last arg mismatch, want newline prompt, got args=%v", args)
-			}
-			out := `{"type":"text","sessionID":"sid_opencode","part":{"type":"text","text":"OK"}}` + "\n" +
-				`{"type":"step_finish","sessionID":"sid_opencode","part":{"type":"step-finish","reason":"stop"}}` + "\n"
-			return newFakeCmd(fakeCmdConfig{StdoutPlan: []fakeStdoutEvent{{Data: out}}})
 		default:
 			runErr = fmt.Errorf("unexpected command: %s (args=%v)", name, args)
 			return newFakeCmd(fakeCmdConfig{})
@@ -372,14 +322,14 @@ line2`,
 	if runErr != nil {
 		t.Fatalf("runner error: %v", runErr)
 	}
-	for _, cmd := range []string{"codex", "claude", "gemini", "opencode"} {
+	for _, cmd := range []string{"codex", "claude", "gemini"} {
 		if !seenCmd[cmd] {
 			t.Fatalf("did not run backend %q", cmd)
 		}
 	}
 
 	payload := parseIntegrationOutput(t, out)
-	if payload.Summary.Total != 4 || payload.Summary.Failed != 0 || payload.Summary.Success != 4 {
+	if payload.Summary.Total != 3 || payload.Summary.Failed != 0 || payload.Summary.Success != 3 {
 		t.Fatalf("unexpected summary: %+v (out=%q)", payload.Summary, out)
 	}
 }

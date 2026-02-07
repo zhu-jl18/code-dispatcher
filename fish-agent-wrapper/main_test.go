@@ -1077,30 +1077,30 @@ func TestBackendParseArgs_NewMode(t *testing.T) {
 	}{
 		{
 			name: "simple task",
-			args: []string{"codeagent-wrapper", "analyze code"},
+			args: []string{"fish-agent-wrapper", "analyze code"},
 			want: &Config{Mode: "new", Task: "analyze code", WorkDir: ".", ExplicitStdin: false, Backend: defaultBackendName},
 		},
 		{
 			name: "task with workdir",
-			args: []string{"codeagent-wrapper", "analyze code", "/path/to/dir"},
+			args: []string{"fish-agent-wrapper", "analyze code", "/path/to/dir"},
 			want: &Config{Mode: "new", Task: "analyze code", WorkDir: "/path/to/dir", ExplicitStdin: false, Backend: defaultBackendName},
 		},
 		{
 			name: "explicit stdin mode",
-			args: []string{"codeagent-wrapper", "-"},
+			args: []string{"fish-agent-wrapper", "-"},
 			want: &Config{Mode: "new", Task: "-", WorkDir: ".", ExplicitStdin: true, Backend: defaultBackendName},
 		},
 		{
 			name: "stdin with workdir",
-			args: []string{"codeagent-wrapper", "-", "/some/dir"},
+			args: []string{"fish-agent-wrapper", "-", "/some/dir"},
 			want: &Config{Mode: "new", Task: "-", WorkDir: "/some/dir", ExplicitStdin: true, Backend: defaultBackendName},
 		},
 		{
 			name:    "stdin with dash workdir rejected",
-			args:    []string{"codeagent-wrapper", "-", "-"},
+			args:    []string{"fish-agent-wrapper", "-", "-"},
 			wantErr: true,
 		},
-		{name: "no args", args: []string{"codeagent-wrapper"}, wantErr: true},
+		{name: "no args", args: []string{"fish-agent-wrapper"}, wantErr: true},
 	}
 
 	for _, tt := range tests {
@@ -1144,24 +1144,24 @@ func TestBackendParseArgs_ResumeMode(t *testing.T) {
 	}{
 		{
 			name: "resume with task",
-			args: []string{"codeagent-wrapper", "resume", "session-123", "continue task"},
+			args: []string{"fish-agent-wrapper", "resume", "session-123", "continue task"},
 			want: &Config{Mode: "resume", SessionID: "session-123", Task: "continue task", WorkDir: ".", ExplicitStdin: false, Backend: defaultBackendName},
 		},
 		{
 			name: "resume with workdir",
-			args: []string{"codeagent-wrapper", "resume", "session-456", "task", "/work"},
+			args: []string{"fish-agent-wrapper", "resume", "session-456", "task", "/work"},
 			want: &Config{Mode: "resume", SessionID: "session-456", Task: "task", WorkDir: "/work", ExplicitStdin: false, Backend: defaultBackendName},
 		},
 		{
 			name: "resume with stdin",
-			args: []string{"codeagent-wrapper", "resume", "session-789", "-"},
+			args: []string{"fish-agent-wrapper", "resume", "session-789", "-"},
 			want: &Config{Mode: "resume", SessionID: "session-789", Task: "-", WorkDir: ".", ExplicitStdin: true, Backend: defaultBackendName},
 		},
-		{name: "resume missing session_id", args: []string{"codeagent-wrapper", "resume"}, wantErr: true},
-		{name: "resume missing task", args: []string{"codeagent-wrapper", "resume", "session-123"}, wantErr: true},
-		{name: "resume empty session_id", args: []string{"codeagent-wrapper", "resume", "", "task"}, wantErr: true},
-		{name: "resume whitespace session_id", args: []string{"codeagent-wrapper", "resume", "   ", "task"}, wantErr: true},
-		{name: "resume with dash workdir rejected", args: []string{"codeagent-wrapper", "resume", "session-123", "task", "-"}, wantErr: true},
+		{name: "resume missing session_id", args: []string{"fish-agent-wrapper", "resume"}, wantErr: true},
+		{name: "resume missing task", args: []string{"fish-agent-wrapper", "resume", "session-123"}, wantErr: true},
+		{name: "resume empty session_id", args: []string{"fish-agent-wrapper", "resume", "", "task"}, wantErr: true},
+		{name: "resume whitespace session_id", args: []string{"fish-agent-wrapper", "resume", "   ", "task"}, wantErr: true},
+		{name: "resume with dash workdir rejected", args: []string{"fish-agent-wrapper", "resume", "session-123", "task", "-"}, wantErr: true},
 	}
 
 	for _, tt := range tests {
@@ -1196,27 +1196,27 @@ func TestBackendParseArgs_BackendFlag(t *testing.T) {
 	}{
 		{
 			name: "claude backend",
-			args: []string{"codeagent-wrapper", "--backend", "claude", "task"},
+			args: []string{"fish-agent-wrapper", "--backend", "claude", "task"},
 			want: "claude",
 		},
 		{
 			name: "gemini resume",
-			args: []string{"codeagent-wrapper", "--backend", "gemini", "resume", "sid", "task"},
+			args: []string{"fish-agent-wrapper", "--backend", "gemini", "resume", "sid", "task"},
 			want: "gemini",
 		},
 		{
 			name: "backend equals syntax",
-			args: []string{"codeagent-wrapper", "--backend=claude", "task"},
+			args: []string{"fish-agent-wrapper", "--backend=claude", "task"},
 			want: "claude",
 		},
 		{
 			name:    "missing backend value",
-			args:    []string{"codeagent-wrapper", "--backend"},
+			args:    []string{"fish-agent-wrapper", "--backend"},
 			wantErr: true,
 		},
 		{
 			name:    "backend equals missing value",
-			args:    []string{"codeagent-wrapper", "--backend=", "task"},
+			args:    []string{"fish-agent-wrapper", "--backend=", "task"},
 			wantErr: true,
 		},
 	}
@@ -1242,35 +1242,35 @@ func TestBackendParseArgs_BackendFlag(t *testing.T) {
 }
 
 func TestBackendParseArgs_ModelFlagRejected(t *testing.T) {
-	os.Args = []string{"codeagent-wrapper", "--model", "opus", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--model", "opus", "task"}
 	if _, err := parseArgs(); err == nil {
 		t.Fatalf("expected --model to be rejected, got nil")
 	}
 }
 
 func TestBackendParseArgs_ReasoningEffortFlagRejected(t *testing.T) {
-	os.Args = []string{"codeagent-wrapper", "--reasoning-effort", "low", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--reasoning-effort", "low", "task"}
 	if _, err := parseArgs(); err == nil {
 		t.Fatalf("expected --reasoning-effort to be rejected, got nil")
 	}
 }
 
 func TestBackendParseArgs_PromptFileFlagRejected(t *testing.T) {
-	os.Args = []string{"codeagent-wrapper", "--prompt-file", "/tmp/prompt.md", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--prompt-file", "/tmp/prompt.md", "task"}
 	if _, err := parseArgs(); err == nil {
 		t.Fatalf("expected --prompt-file to be rejected, got nil")
 	}
 }
 
 func TestBackendParseArgs_UnknownFlagErrors(t *testing.T) {
-	os.Args = []string{"codeagent-wrapper", "--agent", "develop", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--agent", "develop", "task"}
 	if _, err := parseArgs(); err == nil {
 		t.Fatalf("expected unknown flag error, got nil")
 	}
 }
 
 func TestBackendParseArgs_DashDashStopsFlagParsing(t *testing.T) {
-	os.Args = []string{"codeagent-wrapper", "--backend", "claude", "--", "--prompt-file"}
+	os.Args = []string{"fish-agent-wrapper", "--backend", "claude", "--", "--prompt-file"}
 	cfg, err := parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1286,7 +1286,7 @@ func TestBackendParseArgs_DashDashStopsFlagParsing(t *testing.T) {
 func TestBackendParseArgs_SkipPermissions(t *testing.T) {
 	const envKey = "CODEAGENT_SKIP_PERMISSIONS"
 	t.Setenv(envKey, "true")
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 	cfg, err := parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1295,7 +1295,7 @@ func TestBackendParseArgs_SkipPermissions(t *testing.T) {
 		t.Fatalf("SkipPermissions should default to true when env is set")
 	}
 
-	os.Args = []string{"codeagent-wrapper", "--skip-permissions=false", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--skip-permissions=false", "task"}
 	cfg, err = parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1304,7 +1304,7 @@ func TestBackendParseArgs_SkipPermissions(t *testing.T) {
 		t.Fatalf("SkipPermissions should be false when flag overrides env")
 	}
 
-	os.Args = []string{"codeagent-wrapper", "--skip-permissions", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--skip-permissions", "task"}
 	cfg, err = parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1313,7 +1313,7 @@ func TestBackendParseArgs_SkipPermissions(t *testing.T) {
 		t.Fatalf("SkipPermissions should be true for plain --skip-permissions flag")
 	}
 
-	os.Args = []string{"codeagent-wrapper", "--dangerously-skip-permissions", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--dangerously-skip-permissions", "task"}
 	cfg, err = parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1322,7 +1322,7 @@ func TestBackendParseArgs_SkipPermissions(t *testing.T) {
 		t.Fatalf("SkipPermissions should be true for dangerous flag")
 	}
 
-	os.Args = []string{"codeagent-wrapper", "--dangerously-skip-permissions=false", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--dangerously-skip-permissions=false", "task"}
 	cfg, err = parseArgs()
 	if err != nil {
 		t.Fatalf("parseArgs() unexpected error: %v", err)
@@ -1628,7 +1628,6 @@ func TestRun_DefaultPromptInjectionPrefixesTask(t *testing.T) {
 		{name: "codex injects", backend: "codex", prompt: "LINE1\nLINE2\n", wantPrefix: true},
 		{name: "claude injects", backend: "claude", prompt: "P\n", wantPrefix: true},
 		{name: "gemini empty is no-op", backend: "gemini", prompt: "   \n", wantPrefix: false},
-		{name: "opencode missing is no-op", backend: "opencode", prompt: "", wantPrefix: false},
 	}
 
 	for _, tt := range tests {
@@ -1668,7 +1667,7 @@ func TestRun_DefaultPromptInjectionPrefixesTask(t *testing.T) {
 				}
 			}
 
-			os.Args = []string{"codeagent-wrapper", "--backend", tt.backend, "do"}
+			os.Args = []string{"fish-agent-wrapper", "--backend", tt.backend, "do"}
 			if code := run(); code != 0 {
 				t.Fatalf("run() exit=%d, want 0", code)
 			}
@@ -2498,7 +2497,7 @@ func TestBackendPrintHelp(t *testing.T) {
 	io.Copy(&buf, r)
 	output := buf.String()
 
-	expected := []string{"codeagent-wrapper", "Usage:", "resume", "CODEX_TIMEOUT", "Exit Codes:"}
+	expected := []string{"fish-agent-wrapper", "Usage:", "resume", "CODEX_TIMEOUT", "Exit Codes:"}
 	for _, phrase := range expected {
 		if !strings.Contains(output, phrase) {
 			t.Errorf("printHelp() missing phrase %q", phrase)
@@ -3241,7 +3240,7 @@ id: second
 backend: gemini
 ---CONTENT---
 do two`)
-	os.Args = []string{"codeagent-wrapper", "--backend", "claude", "--parallel"}
+	os.Args = []string{"fish-agent-wrapper", "--backend", "claude", "--parallel"}
 
 	if code := run(); code != 0 {
 		t.Fatalf("run exit = %d, want 0", code)
@@ -3273,7 +3272,7 @@ do one
 id: second
 ---CONTENT---
 do two`)
-	os.Args = []string{"codeagent-wrapper", "--parallel", "--model", "sonnet"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel", "--model", "sonnet"}
 
 	if code := run(); code == 0 {
 		t.Fatalf("expected non-zero exit for --model in parallel mode, got %d", code)
@@ -3284,7 +3283,7 @@ func TestParallelFlag(t *testing.T) {
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
-	os.Args = []string{"codeagent-wrapper", "--parallel"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	jsonInput := `---TASK---
 id: T1
 ---CONTENT---
@@ -3311,7 +3310,7 @@ func TestRunParallelWithFullOutput(t *testing.T) {
 
 	oldArgs := os.Args
 	t.Cleanup(func() { os.Args = oldArgs })
-	os.Args = []string{"codeagent-wrapper", "--parallel", "--full-output"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel", "--full-output"}
 
 	stdinReader = strings.NewReader(`---TASK---
 id: T1
@@ -3353,7 +3352,7 @@ func TestParallelInvalidBackend(t *testing.T) {
 id: only
 ---CONTENT---
 noop`)
-	os.Args = []string{"codeagent-wrapper", "--parallel", "--backend", "unknown"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel", "--backend", "unknown"}
 
 	if code := run(); code == 0 {
 		t.Fatalf("expected non-zero exit for invalid backend in parallel mode")
@@ -3365,7 +3364,7 @@ func TestParallelTriggersCleanup(t *testing.T) {
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
-	os.Args = []string{"codex-wrapper", "--parallel"}
+	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	stdinReader = strings.NewReader(`---TASK---
 id: only
 ---CONTENT---
@@ -3393,14 +3392,14 @@ noop`)
 
 func TestVersionFlag(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "--version"}
+	os.Args = []string{"fish-agent-wrapper", "--version"}
 	output := captureOutput(t, func() {
 		if code := run(); code != 0 {
 			t.Errorf("exit = %d, want 0", code)
 		}
 	})
 
-	want := "codeagent-wrapper version 5.6.4\n"
+	want := "fish-agent-wrapper version 5.6.4\n"
 
 	if output != want {
 		t.Fatalf("output = %q, want %q", output, want)
@@ -3409,14 +3408,14 @@ func TestVersionFlag(t *testing.T) {
 
 func TestVersionShortFlag(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "-v"}
+	os.Args = []string{"fish-agent-wrapper", "-v"}
 	output := captureOutput(t, func() {
 		if code := run(); code != 0 {
 			t.Errorf("exit = %d, want 0", code)
 		}
 	})
 
-	want := "codeagent-wrapper version 5.6.4\n"
+	want := "fish-agent-wrapper version 5.6.4\n"
 
 	if output != want {
 		t.Fatalf("output = %q, want %q", output, want)
@@ -3425,14 +3424,14 @@ func TestVersionShortFlag(t *testing.T) {
 
 func TestVersionLegacyAlias(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codex-wrapper", "--version"}
+	os.Args = []string{"fish-agent-wrapper", "--version"}
 	output := captureOutput(t, func() {
 		if code := run(); code != 0 {
 			t.Errorf("exit = %d, want 0", code)
 		}
 	})
 
-	want := "codex-wrapper version 5.6.4\n"
+	want := "fish-agent-wrapper version 5.6.4\n"
 
 	if output != want {
 		t.Fatalf("output = %q, want %q", output, want)
@@ -3441,7 +3440,7 @@ func TestVersionLegacyAlias(t *testing.T) {
 
 func TestRun_Help(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "--help"}
+	os.Args = []string{"fish-agent-wrapper", "--help"}
 	if code := run(); code != 0 {
 		t.Errorf("exit = %d, want 0", code)
 	}
@@ -3449,7 +3448,7 @@ func TestRun_Help(t *testing.T) {
 
 func TestRun_HelpShort(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "-h"}
+	os.Args = []string{"fish-agent-wrapper", "-h"}
 	if code := run(); code != 0 {
 		t.Errorf("exit = %d, want 0", code)
 	}
@@ -3457,7 +3456,7 @@ func TestRun_HelpShort(t *testing.T) {
 
 func TestRun_HelpDoesNotTriggerCleanup(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codex-wrapper", "--help"}
+	os.Args = []string{"fish-agent-wrapper", "--help"}
 	cleanupLogsFn = func() (CleanupStats, error) {
 		t.Fatalf("cleanup should not run for --help")
 		return CleanupStats{}, nil
@@ -3470,7 +3469,7 @@ func TestRun_HelpDoesNotTriggerCleanup(t *testing.T) {
 
 func TestVersionDoesNotTriggerCleanup(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codex-wrapper", "--version"}
+	os.Args = []string{"fish-agent-wrapper", "--version"}
 	cleanupLogsFn = func() (CleanupStats, error) {
 		t.Fatalf("cleanup should not run for --version")
 		return CleanupStats{}, nil
@@ -3555,7 +3554,7 @@ func TestVersionCoverageFullRun(t *testing.T) {
 			return TaskResult{ExitCode: 0}
 		}
 
-		os.Args = []string{"codeagent-wrapper"}
+		os.Args = []string{"fish-agent-wrapper"}
 		if code := run(); code == 0 {
 			t.Fatalf("run exit = %d, want non-zero for missing task", code)
 		}
@@ -3568,12 +3567,12 @@ func TestVersionCoverageFullRun(t *testing.T) {
 		defer resetTestHooks()
 		cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }
 
-		os.Args = []string{"codeagent-wrapper", "--help"}
+		os.Args = []string{"fish-agent-wrapper", "--help"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0 for help", code)
 		}
 
-		os.Args = []string{"codeagent-wrapper", "--cleanup"}
+		os.Args = []string{"fish-agent-wrapper", "--cleanup"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0 for cleanup", code)
 		}
@@ -3599,7 +3598,7 @@ func TestVersionCoverageFullRun(t *testing.T) {
 
 		stdinReader = strings.NewReader("task line with $ and \\\nnext line with `tick` and \"quote\" and 'single'")
 		isTerminalFn = func() bool { return false }
-		os.Args = []string{"codeagent-wrapper", "-", "/tmp/workdir"}
+		os.Args = []string{"fish-agent-wrapper", "-", "/tmp/workdir"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0", code)
 		}
@@ -3626,7 +3625,7 @@ func TestVersionCoverageFullRun(t *testing.T) {
 
 		stdinReader = strings.NewReader("")
 		isTerminalFn = func() bool { return true }
-		os.Args = []string{"codeagent-wrapper", "raw-task"}
+		os.Args = []string{"fish-agent-wrapper", "raw-task"}
 		if code := run(); code != 2 {
 			t.Fatalf("run exit = %d, want 2", code)
 		}
@@ -3654,7 +3653,7 @@ func TestVersionCoverageFullRun(t *testing.T) {
 
 		stdinReader = strings.NewReader(strings.Repeat("x", 900))
 		isTerminalFn = func() bool { return false }
-		os.Args = []string{"codeagent-wrapper", "ignored"}
+		os.Args = []string{"fish-agent-wrapper", "ignored"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0 for piped input", code)
 		}
@@ -3668,7 +3667,7 @@ func TestVersionCoverageFullRun(t *testing.T) {
 		}
 
 		stdinReader = errReader{err: errors.New("read-fail")}
-		os.Args = []string{"codeagent-wrapper", "-", "/tmp/workdir"}
+		os.Args = []string{"fish-agent-wrapper", "-", "/tmp/workdir"}
 		if code := run(); code == 0 {
 			t.Fatalf("run exit = %d, want non-zero on stdin read error", code)
 		}
@@ -3692,7 +3691,7 @@ id: second
 dependencies: first
 ---CONTENT---
 do two`)
-		os.Args = []string{"codeagent-wrapper", "--parallel"}
+		os.Args = []string{"fish-agent-wrapper", "--parallel"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0", code)
 		}
@@ -3716,7 +3715,7 @@ id: only
 backend: claude
 ---CONTENT---
 do one`)
-		os.Args = []string{"codeagent-wrapper", "--parallel", "--skip-permissions"}
+		os.Args = []string{"fish-agent-wrapper", "--parallel", "--skip-permissions"}
 		if code := run(); code != 0 {
 			t.Fatalf("run exit = %d, want 0", code)
 		}
@@ -3726,13 +3725,13 @@ do one`)
 		defer resetTestHooks()
 		cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }
 
-		os.Args = []string{"codeagent-wrapper", "--parallel", "extra"}
+		os.Args = []string{"fish-agent-wrapper", "--parallel", "extra"}
 		if code := run(); code == 0 {
 			t.Fatalf("run exit = %d, want error for extra args", code)
 		}
 
 		stdinReader = strings.NewReader("invalid format")
-		os.Args = []string{"codeagent-wrapper", "--parallel"}
+		os.Args = []string{"fish-agent-wrapper", "--parallel"}
 		if code := run(); code == 0 {
 			t.Fatalf("run exit = %d, want error for invalid config", code)
 		}
@@ -3752,7 +3751,7 @@ func TestVersionMainWrapper(t *testing.T) {
 	defer resetTestHooks()
 	exitCalled := -1
 	exitFn = func(code int) { exitCalled = code }
-	os.Args = []string{"codeagent-wrapper", "--version"}
+	os.Args = []string{"fish-agent-wrapper", "--version"}
 	main()
 	if exitCalled != 0 {
 		t.Fatalf("main exit = %d, want 0", exitCalled)
@@ -3766,8 +3765,8 @@ func TestBackendCleanupMode_Success(t *testing.T) {
 			Scanned:      5,
 			Deleted:      3,
 			Kept:         2,
-			DeletedFiles: []string{"codex-wrapper-111.log", "codex-wrapper-222.log", "codex-wrapper-333.log"},
-			KeptFiles:    []string{"codex-wrapper-444.log", "codex-wrapper-555.log"},
+			DeletedFiles: []string{"fish-agent-wrapper-111.log", "fish-agent-wrapper-222.log", "fish-agent-wrapper-333.log"},
+			KeptFiles:    []string{"fish-agent-wrapper-444.log", "fish-agent-wrapper-555.log"},
 		}, nil
 	}
 
@@ -3778,7 +3777,7 @@ func TestBackendCleanupMode_Success(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("exit = %d, want 0", exitCode)
 	}
-	want := "Cleanup completed\nFiles scanned: 5\nFiles deleted: 3\n  - codex-wrapper-111.log\n  - codex-wrapper-222.log\n  - codex-wrapper-333.log\nFiles kept: 2\n  - codex-wrapper-444.log\n  - codex-wrapper-555.log\n"
+	want := "Cleanup completed\nFiles scanned: 5\nFiles deleted: 3\n  - fish-agent-wrapper-111.log\n  - fish-agent-wrapper-222.log\n  - fish-agent-wrapper-333.log\nFiles kept: 2\n  - fish-agent-wrapper-444.log\n  - fish-agent-wrapper-555.log\n"
 	if output != want {
 		t.Fatalf("output = %q, want %q", output, want)
 	}
@@ -3792,7 +3791,7 @@ func TestBackendCleanupMode_SuccessWithErrorsLine(t *testing.T) {
 			Deleted:      1,
 			Kept:         0,
 			Errors:       1,
-			DeletedFiles: []string{"codex-wrapper-123.log"},
+			DeletedFiles: []string{"fish-agent-wrapper-123.log"},
 		}, nil
 	}
 
@@ -3803,7 +3802,7 @@ func TestBackendCleanupMode_SuccessWithErrorsLine(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("exit = %d, want 0", exitCode)
 	}
-	want := "Cleanup completed\nFiles scanned: 2\nFiles deleted: 1\n  - codex-wrapper-123.log\nFiles kept: 0\nDeletion errors: 1\n"
+	want := "Cleanup completed\nFiles scanned: 2\nFiles deleted: 1\n  - fish-agent-wrapper-123.log\nFiles kept: 0\nDeletion errors: 1\n"
 	if output != want {
 		t.Fatalf("output = %q, want %q", output, want)
 	}
@@ -3872,7 +3871,7 @@ func TestRun_CleanupFlag(t *testing.T) {
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
-	os.Args = []string{"codex-wrapper", "--cleanup"}
+	os.Args = []string{"fish-agent-wrapper", "--cleanup"}
 
 	calls := 0
 	cleanupLogsFn = func() (CleanupStats, error) {
@@ -3901,7 +3900,7 @@ func TestRun_CleanupFlag(t *testing.T) {
 
 func TestRun_NoArgs(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper"}
+	os.Args = []string{"fish-agent-wrapper"}
 	if code := run(); code != 1 {
 		t.Errorf("exit = %d, want 1", code)
 	}
@@ -3909,7 +3908,7 @@ func TestRun_NoArgs(t *testing.T) {
 
 func TestRun_ExplicitStdinEmpty(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "-"}
+	os.Args = []string{"fish-agent-wrapper", "-"}
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return false }
 	if code := run(); code != 1 {
@@ -3921,7 +3920,7 @@ func TestRun_ExplicitStdinReadError(t *testing.T) {
 	defer resetTestHooks()
 	tempDir := t.TempDir()
 	t.Setenv("TMPDIR", tempDir)
-	logPath := filepath.Join(tempDir, fmt.Sprintf("codeagent-wrapper-%d.log", os.Getpid()))
+	logPath := filepath.Join(tempDir, fmt.Sprintf("fish-agent-wrapper-%d.log", os.Getpid()))
 
 	var logOutput string
 	cleanupHook = func() {
@@ -3931,7 +3930,7 @@ func TestRun_ExplicitStdinReadError(t *testing.T) {
 		}
 	}
 
-	os.Args = []string{"codeagent-wrapper", "-"}
+	os.Args = []string{"fish-agent-wrapper", "-"}
 	stdinReader = errReader{errors.New("broken stdin")}
 	isTerminalFn = func() bool { return false }
 
@@ -3951,7 +3950,7 @@ func TestRun_ExplicitStdinReadError(t *testing.T) {
 
 func TestRun_CommandFails(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
 	restore := withBackend("false", func(cfg *Config, targetArg string) []string { return []string{} })
@@ -3963,7 +3962,7 @@ func TestRun_CommandFails(t *testing.T) {
 
 func TestRun_InvalidBackend(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "--backend", "unknown", "task"}
+	os.Args = []string{"fish-agent-wrapper", "--backend", "unknown", "task"}
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
 	if code := run(); code == 0 {
@@ -3979,7 +3978,7 @@ func TestRun_SuccessfulExecution(t *testing.T) {
 	defer restore()
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 
 	exitCode := run()
 	if exitCode != 0 {
@@ -4001,7 +4000,7 @@ func TestRun_ExplicitStdinSuccess(t *testing.T) {
 	defer restore()
 	stdinReader = strings.NewReader("line1\nline2")
 	isTerminalFn = func() bool { return false }
-	os.Args = []string{"codeagent-wrapper", "-"}
+	os.Args = []string{"fish-agent-wrapper", "-"}
 
 	exitCode := run()
 	restoreStdoutPipe(stdout)
@@ -4018,7 +4017,7 @@ func TestRun_PipedTaskReadError(t *testing.T) {
 	defer resetTestHooks()
 	tempDir := t.TempDir()
 	t.Setenv("TMPDIR", tempDir)
-	logPath := filepath.Join(tempDir, fmt.Sprintf("codeagent-wrapper-%d.log", os.Getpid()))
+	logPath := filepath.Join(tempDir, fmt.Sprintf("fish-agent-wrapper-%d.log", os.Getpid()))
 
 	var logOutput string
 	cleanupHook = func() {
@@ -4032,7 +4031,7 @@ func TestRun_PipedTaskReadError(t *testing.T) {
 	defer restore()
 	isTerminalFn = func() bool { return false }
 	stdinReader = errReader{errors.New("pipe failure")}
-	os.Args = []string{"codeagent-wrapper", "cli-task"}
+	os.Args = []string{"fish-agent-wrapper", "cli-task"}
 
 	exitCode := run()
 	if exitCode != 1 {
@@ -4055,7 +4054,7 @@ func TestRun_PipedTaskSuccess(t *testing.T) {
 	defer restore()
 	isTerminalFn = func() bool { return false }
 	stdinReader = strings.NewReader("piped task text")
-	os.Args = []string{"codeagent-wrapper", "cli-task"}
+	os.Args = []string{"fish-agent-wrapper", "cli-task"}
 
 	exitCode := run()
 	restoreStdoutPipe(stdout)
@@ -4072,7 +4071,7 @@ func TestRun_LoggerLifecycle(t *testing.T) {
 	defer resetTestHooks()
 	tempDir := t.TempDir()
 	t.Setenv("TMPDIR", tempDir)
-	logPath := filepath.Join(tempDir, fmt.Sprintf("codeagent-wrapper-%d.log", os.Getpid()))
+	logPath := filepath.Join(tempDir, fmt.Sprintf("fish-agent-wrapper-%d.log", os.Getpid()))
 
 	stdout := captureStdoutPipe()
 
@@ -4080,7 +4079,7 @@ func TestRun_LoggerLifecycle(t *testing.T) {
 	defer restore()
 	isTerminalFn = func() bool { return true }
 	stdinReader = strings.NewReader("")
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 
 	var fileExisted bool
 	cleanupHook = func() {
@@ -4115,7 +4114,7 @@ func TestRun_LoggerRemovedOnSignal(t *testing.T) {
 
 	tempDir := t.TempDir()
 	t.Setenv("TMPDIR", tempDir)
-	logPath := filepath.Join(tempDir, fmt.Sprintf("codeagent-wrapper-%d.log", os.Getpid()))
+	logPath := filepath.Join(tempDir, fmt.Sprintf("fish-agent-wrapper-%d.log", os.Getpid()))
 
 	scriptPath := filepath.Join(tempDir, "sleepy-codex.sh")
 	script := `#!/bin/sh
@@ -4130,7 +4129,7 @@ printf '%s\n' '{"type":"item.completed","item":{"type":"agent_message","text":"l
 	defer restore()
 	isTerminalFn = func() bool { return true }
 	stdinReader = strings.NewReader("")
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 
 	var cancel context.CancelFunc
 	signalNotifyCtxFn = func(parent context.Context, _ ...os.Signal) (context.Context, context.CancelFunc) {
@@ -4185,7 +4184,7 @@ func TestRun_CleanupHookAlwaysCalled(t *testing.T) {
 {"type":"item.completed","item":{"type":"agent_message","text":"ok"}}`}
 	})
 	defer restore()
-	os.Args = []string{"codeagent-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 	if exitCode := run(); exitCode != 0 {
 		t.Fatalf("exit = %d, want 0", exitCode)
 	}
@@ -4235,7 +4234,7 @@ func TestRun_CleanupFailureDoesNotBlock(t *testing.T) {
 	codexCommand = createFakeCodexScript(t, "tid-cleanup", "ok")
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
-	os.Args = []string{"codex-wrapper", "task"}
+	os.Args = []string{"fish-agent-wrapper", "task"}
 
 	if exit := run(); exit != 0 {
 		t.Fatalf("exit = %d, want 0", exit)
@@ -4480,7 +4479,7 @@ func TestParallelLogPathInSerialMode(t *testing.T) {
 	tempDir := t.TempDir()
 	t.Setenv("TMPDIR", tempDir)
 
-	os.Args = []string{"codex-wrapper", "do-stuff"}
+	os.Args = []string{"fish-agent-wrapper", "do-stuff"}
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
 	codexCommand = "echo"
@@ -4497,7 +4496,7 @@ func TestParallelLogPathInSerialMode(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("run() exit = %d, want 0", exitCode)
 	}
-	expectedLog := filepath.Join(tempDir, fmt.Sprintf("codex-wrapper-%d.log", os.Getpid()))
+	expectedLog := filepath.Join(tempDir, fmt.Sprintf("fish-agent-wrapper-%d.log", os.Getpid()))
 	wantLine := fmt.Sprintf("Log: %s", expectedLog)
 	if !strings.Contains(stderr, wantLine) {
 		t.Fatalf("stderr missing %q, got: %q", wantLine, stderr)
@@ -4619,7 +4618,7 @@ func TestRealCmdProcess(t *testing.T) {
 
 func TestRun_CLI_Success(t *testing.T) {
 	defer resetTestHooks()
-	os.Args = []string{"codeagent-wrapper", "do-things"}
+	os.Args = []string{"fish-agent-wrapper", "do-things"}
 	stdinReader = strings.NewReader("")
 	isTerminalFn = func() bool { return true }
 

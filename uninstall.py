@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dev-only uninstaller for myclaude-simple (personal setup).
+"""Dev-only uninstaller for fish-agent-wrapper (personal setup).
 
 Removes only the files installed by ./install.py and leaves unrelated user files intact.
 """
@@ -13,14 +13,14 @@ from pathlib import Path
 
 
 DEFAULT_INSTALL_DIR = "~/.claude"
-BACKENDS = ("codex", "claude", "gemini", "opencode")
+BACKENDS = ("codex", "claude", "gemini")
 
-CLAUDE_BLOCK_BEGIN = "<!-- BEGIN MYCLAUDE-SIMPLE:DEV-ONLY -->"
-CLAUDE_BLOCK_END = "<!-- END MYCLAUDE-SIMPLE:DEV-ONLY -->"
+CLAUDE_BLOCK_BEGIN = "<!-- BEGIN FISH-AGENT-WRAPPER:DEV-ONLY -->"
+CLAUDE_BLOCK_END = "<!-- END FISH-AGENT-WRAPPER:DEV-ONLY -->"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Uninstall dev-only workflow + codeagent-wrapper")
+    p = argparse.ArgumentParser(description="Uninstall dev-only workflow + fish-agent-wrapper")
     p.add_argument(
         "--install-dir",
         default=DEFAULT_INSTALL_DIR,
@@ -79,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
             print("Aborted.")
             return 0
 
-    exe_name = "codeagent-wrapper.exe" if os.name == "nt" else "codeagent-wrapper"
+    exe_name = "fish-agent-wrapper.exe" if os.name == "nt" else "fish-agent-wrapper"
 
     targets = [
         install_dir / "commands" / "dev.md",

@@ -114,7 +114,7 @@ func defaultPromptFileForBackend(backendName string) string {
 	}
 
 	switch backend {
-	case "codex", "claude", "gemini", "opencode":
+	case "codex", "claude", "gemini":
 		return filepath.Join(base, "codeagent", backend+"-prompt.md")
 	default:
 		return ""

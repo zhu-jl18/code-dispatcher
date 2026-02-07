@@ -182,22 +182,6 @@ func (GeminiBackend) BuildArgs(cfg *Config, targetArg string) []string {
 	return buildGeminiArgs(cfg, targetArg)
 }
 
-type OpencodeBackend struct{}
-
-func (OpencodeBackend) Name() string    { return "opencode" }
-func (OpencodeBackend) Command() string { return "opencode" }
-func (OpencodeBackend) BuildArgs(cfg *Config, targetArg string) []string {
-	args := []string{"run"}
-	if cfg.Mode == "resume" && cfg.SessionID != "" {
-		args = append(args, "-s", cfg.SessionID)
-	}
-	args = append(args, "--format", "json")
-	if targetArg != "-" {
-		args = append(args, targetArg)
-	}
-	return args
-}
-
 func buildGeminiArgs(cfg *Config, targetArg string) []string {
 	if cfg == nil {
 		return nil

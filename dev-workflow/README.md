@@ -32,7 +32,6 @@ Done (generate summary)
   - `codex` - Stable, high quality, best cost-performance (default for most tasks)
   - `claude` - Fast, lightweight (for quick fixes and config changes)
   - `gemini` - UI/UX specialist (for frontend styling and components)
-  - `opencode` - Very fast but weaker reasoning (一般不考虑调用; only use for tiny mechanical edits / quick search; avoid complex logic)
 - If user selects ONLY `codex`, ALL subsequent tasks must use `codex` (including UI/quick-fix)
 
 ### 1. Clarify Requirements
@@ -59,7 +58,7 @@ Done (generate summary)
   - `ui` → `gemini` (enforced when allowed)
   - `quick-fix` → `claude`
   - Missing `type` → treat as `default`
-  - If the preferred backend is not allowed, fallback to an allowed backend by priority: `codex` → `claude` → `gemini` → `opencode`
+  - If the preferred backend is not allowed, fallback to an allowed backend by priority: `codex` → `claude` → `gemini`
 - Independent tasks → run in parallel
 - Conflicting tasks → run serially
 
@@ -95,15 +94,14 @@ Only one file—minimal and clear.
 
 ### Tools
 - **AskUserQuestion**: interactive requirement clarification
-- **codeagent skill**: analysis, development, testing; supports `--backend` for `codex` / `claude` / `gemini` / `opencode` (opencode is last-resort; keep tasks tiny and explicit)
+- **codeagent skill**: analysis, development, testing; supports `--backend` for `codex` / `claude` / `gemini`
 - **dev-plan-generator agent**: generate dev doc (subagent via Task tool, saves context)
 
 ## Backend Selection & Routing
 - **Step 0**: user selects allowed backends; if `仅 codex`, all tasks use codex
 - **UI detection standard**: style files (.css, .scss, styled-components, CSS modules, tailwindcss) OR frontend component code (.tsx, .jsx, .vue) trigger `needs_ui: true`
 - **Task type field**: each task in `dev-plan.md` must have `type: default|ui|quick-fix`
-- **Routing**: `default`→codex, `ui`→gemini, `quick-fix`→claude; if disallowed, fallback to an allowed backend by priority: codex→claude→gemini→opencode
-  - **Opencode note**: use only for very small, explicit, low-ambiguity changes; if the task grows, reroute to `codex`/`claude`.
+- **Routing**: `default`→codex, `ui`→gemini, `quick-fix`→claude; if disallowed, fallback to an allowed backend by priority: codex→claude→gemini
 
 ## Key Features
 

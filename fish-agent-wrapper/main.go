@@ -587,10 +587,10 @@ Parallel mode examples:
     %[1]s --parallel --full-output < tasks.txt
     %[1]s --parallel <<'EOF'
 
-Prompt Injection (default-on):
-    Prompt file path: ${CODEAGENT_CLAUDE_DIR:-~/.claude}/codeagent/<backend>-prompt.md
-    Backends: codex | claude | gemini | opencode
-    Empty/missing prompt files behave like no injection.
+	Prompt Injection (default-on):
+	    Prompt file path: ${CODEAGENT_CLAUDE_DIR:-~/.claude}/codeagent/<backend>-prompt.md
+	    Backends: codex | claude | gemini
+	    Empty/missing prompt files behave like no injection.
 
 Environment Variables:
     CODEX_TIMEOUT         Timeout in milliseconds (default: 7200000)

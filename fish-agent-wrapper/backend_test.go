@@ -150,7 +150,6 @@ func TestClaudeBuildArgs_BackendMetadata(t *testing.T) {
 		{backend: CodexBackend{}, name: "codex", command: "codex"},
 		{backend: ClaudeBackend{}, name: "claude", command: "claude"},
 		{backend: GeminiBackend{}, name: "gemini", command: "gemini"},
-		{backend: OpencodeBackend{}, name: "opencode", command: "opencode"},
 	}
 
 	for _, tt := range tests {
@@ -161,37 +160,6 @@ func TestClaudeBuildArgs_BackendMetadata(t *testing.T) {
 			t.Fatalf("Command() = %s, want %s", got, tt.command)
 		}
 	}
-}
-
-func TestOpencodeBuildArgs_ModesAndInput(t *testing.T) {
-	backend := OpencodeBackend{}
-
-	t.Run("new mode passes prompt as positional args", func(t *testing.T) {
-		cfg := &Config{Mode: "new"}
-		got := backend.BuildArgs(cfg, "hello")
-		want := []string{"run", "--format", "json", "hello"}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got %v, want %v", got, want)
-		}
-	})
-
-	t.Run("resume mode includes -s session id", func(t *testing.T) {
-		cfg := &Config{Mode: "resume", SessionID: "ses-123"}
-		got := backend.BuildArgs(cfg, "follow-up")
-		want := []string{"run", "-s", "ses-123", "--format", "json", "follow-up"}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got %v, want %v", got, want)
-		}
-	})
-
-	t.Run("stdin target uses no positional prompt", func(t *testing.T) {
-		cfg := &Config{Mode: "new"}
-		got := backend.BuildArgs(cfg, "-")
-		want := []string{"run", "--format", "json"}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got %v, want %v", got, want)
-		}
-	})
 }
 
 func TestLoadMinimalEnvSettings(t *testing.T) {

@@ -852,12 +852,6 @@ func runCodexTaskWithContext(parentCtx context.Context, taskSpec TaskSpec, backe
 	}
 
 	useStdin := taskSpec.UseStdin
-	// opencode run expects the prompt as positional args ("message..") and does not
-	// document reading the prompt from stdin. Passing "-" (stdin mode) would drop
-	// the message entirely and can lead to confusing hangs/failures.
-	if cfg.Backend == "opencode" {
-		useStdin = false
-	}
 	targetArg := taskSpec.Task
 	if useStdin {
 		targetArg = "-"

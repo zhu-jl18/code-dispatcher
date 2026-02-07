@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	defaultWrapperName = "codeagent-wrapper"
-	legacyWrapperName  = "codex-wrapper"
+	defaultWrapperName = "fish-agent-wrapper"
 )
 
 var executablePathFn = os.Executable
@@ -21,12 +20,11 @@ func normalizeWrapperName(path string) string {
 	base := filepath.Base(path)
 	base = strings.TrimSuffix(base, ".exe") // tolerate Windows executables
 
-	switch base {
-	case defaultWrapperName, legacyWrapperName:
+	if base == defaultWrapperName {
 		return base
-	default:
-		return ""
 	}
+
+	return ""
 }
 
 // currentWrapperName resolves the wrapper name based on the invoked binary.
@@ -50,13 +48,6 @@ func currentWrapperName() string {
 			if name := normalizeWrapperName(resolved); name != "" {
 				return name
 			}
-			if alias := resolveAlias(execPath, resolved); alias != "" {
-				return alias
-			}
-		}
-
-		if alias := resolveAlias(execPath, ""); alias != "" {
-			return alias
 		}
 	}
 
@@ -66,7 +57,7 @@ func currentWrapperName() string {
 // logPrefixes returns the set of accepted log name prefixes, including the
 // current wrapper name and legacy aliases.
 func logPrefixes() []string {
-	prefixes := []string{currentWrapperName(), defaultWrapperName, legacyWrapperName}
+	prefixes := []string{currentWrapperName(), defaultWrapperName}
 	seen := make(map[string]struct{}, len(prefixes))
 	var unique []string
 	for _, prefix := range prefixes {
@@ -91,36 +82,4 @@ func primaryLogPrefix() string {
 		return defaultWrapperName
 	}
 	return prefixes[0]
-}
-
-func resolveAlias(execPath string, target string) string {
-	if execPath == "" {
-		return ""
-	}
-
-	dir := filepath.Dir(execPath)
-	for _, candidate := range []string{defaultWrapperName, legacyWrapperName} {
-		aliasPath := filepath.Join(dir, candidate)
-		info, err := os.Lstat(aliasPath)
-		if err != nil {
-			continue
-		}
-		if info.Mode()&os.ModeSymlink == 0 {
-			continue
-		}
-
-		resolved, err := filepath.EvalSymlinks(aliasPath)
-		if err != nil {
-			continue
-		}
-		if target != "" && resolved != target {
-			continue
-		}
-
-		if name := normalizeWrapperName(aliasPath); name != "" {
-			return name
-		}
-	}
-
-	return ""
 }

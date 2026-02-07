@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Dev-only installer for myclaude-simple (personal setup).
+"""Dev-only installer for fish-agent-wrapper (personal setup).
 
 Installs:
 - /dev workflow (command + dev-plan-generator agent)
 - codeagent skill
 - product-requirements (PRD) skill
 - Append dev-only hard gates to CLAUDE.md (non-destructive)
-- codeagent-wrapper binary (copied from prebuilt artifacts in ./dist)
+- fish-agent-wrapper binary (copied from prebuilt artifacts in ./dist)
 - per-backend prompt placeholder files (empty by default)
 
 Targets:
@@ -27,14 +27,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 DEFAULT_INSTALL_DIR = "~/.claude"
 
-BACKENDS = ("codex", "claude", "gemini", "opencode")
+BACKENDS = ("codex", "claude", "gemini")
 
-CLAUDE_BLOCK_BEGIN = "<!-- BEGIN MYCLAUDE-SIMPLE:DEV-ONLY -->"
-CLAUDE_BLOCK_END = "<!-- END MYCLAUDE-SIMPLE:DEV-ONLY -->"
+CLAUDE_BLOCK_BEGIN = "<!-- BEGIN FISH-AGENT-WRAPPER:DEV-ONLY -->"
+CLAUDE_BLOCK_END = "<!-- END FISH-AGENT-WRAPPER:DEV-ONLY -->"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Install dev-only Claude Code workflow + codeagent-wrapper")
+    p = argparse.ArgumentParser(description="Install dev-only Claude Code workflow + fish-agent-wrapper")
     p.add_argument(
         "--install-dir",
         default=DEFAULT_INSTALL_DIR,
@@ -49,7 +49,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--skip-wrapper",
         "--skip-build",
         action="store_true",
-        help="Skip installing codeagent-wrapper (only install config/assets)",
+        help="Skip installing fish-agent-wrapper (only install config/assets)",
     )
     return p.parse_args(argv)
 
@@ -113,10 +113,10 @@ def _install_prompts(install_dir: Path, *, force: bool) -> None:
 def _copy_prebuilt_wrapper(install_dir: Path, *, force: bool) -> Path:
     bin_dir = install_dir / "bin"
     _ensure_dir(bin_dir)
-    exe_name = "codeagent-wrapper.exe" if os.name == "nt" else "codeagent-wrapper"
+    exe_name = "fish-agent-wrapper.exe" if os.name == "nt" else "fish-agent-wrapper"
     out = bin_dir / exe_name
 
-    artifact_name = "codeagent-wrapper-windows-amd64.exe" if os.name == "nt" else "codeagent-wrapper-linux-amd64"
+    artifact_name = "fish-agent-wrapper-windows-amd64.exe" if os.name == "nt" else "fish-agent-wrapper-linux-amd64"
     artifact = REPO_ROOT / "dist" / artifact_name
     if not artifact.exists():
         raise FileNotFoundError(f"missing prebuilt artifact: {artifact}")
@@ -190,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
         print("")
         print("Note:")
         print(f"- You used a non-default install dir.")
-        print(f"- Set CODEAGENT_CLAUDE_DIR={install_dir} so codeagent-wrapper can find prompts/settings.")
+        print(f"- Set CODEAGENT_CLAUDE_DIR={install_dir} so fish-agent-wrapper can find prompts/settings.")
 
     return 0
 
