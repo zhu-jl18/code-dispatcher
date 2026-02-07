@@ -40,7 +40,7 @@ These rules have HIGHEST PRIORITY and override all other instructions:
     - `codex` - Stable, high quality, best cost-performance (default for most tasks)
     - `claude` - Fast, lightweight (for quick fixes and config changes)
     - `gemini` - UI/UX specialist (for frontend styling and components)
-    - `ampcode` - Smart reviewer for plan review, code review, and unresolved bug fallback
+    - `ampcode` - Plan review, code review, and difficult bug retry
   - Store the selected backends as `allowed_backends` set for routing in Step 4
   - Special rule: if user selects ONLY `codex`, then ALL subsequent tasks (including UI/quick-fix/review) MUST use `codex` (no exceptions)
   - Guidance: If the request involves non-trivial logic or multi-file refactors, strongly recommend enabling at least `codex` or `claude`.
@@ -128,7 +128,6 @@ These rules have HIGHEST PRIORITY and override all other instructions:
   - invoke agent dev-plan-generator
   - When creating `dev-plan.md`, ensure every task has `type: default|ui|quick-fix|review`
   - Append a dedicated UI task if Step 2 marked `needs_ui: true` but no UI task exists
-  - If the change touches architecture, security boundaries, or critical bug fixes and `ampcode` is allowed, append a dedicated `review` task for plan/code review
   - Output a brief summary of dev-plan.md:
     - Number of tasks and their IDs
     - Task type for each task
@@ -149,7 +148,7 @@ These rules have HIGHEST PRIORITY and override all other instructions:
       - `default` → `codex`
       - `ui` → `gemini` (enforced when allowed)
       - `quick-fix` → `claude`
-      - `review` → `ampcode` (default amp mode `smart`)
+      - `review` → `ampcode`
     - If user selected `仅 codex`: all tasks MUST use `codex`
     - Otherwise, if preferred backend is not in `allowed_backends`, fallback to the first available backend by priority: `codex` → `claude` → `ampcode` → `gemini`
   - Build ONE `--parallel` config that includes all tasks in `dev-plan.md` and submit it once via Bash tool:
