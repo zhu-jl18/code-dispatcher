@@ -1,236 +1,155 @@
 ---
 name: fish-agent-wrapper
-description: Execute fish-agent-wrapper for multi-backend AI code tasks. Supports Codex, Claude, Gemini, with file references (@syntax) and structured output.
+description: Execute fish-agent-wrapper for multi-backend AI coding tasks. Supports Codex, Claude, Gemini, Ampcode with file references (@syntax), resume, and parallel execution.
 ---
 
 # fish-agent-wrapper Integration
 
 ## Overview
 
-Execute fish-agent-wrapper commands with pluggable AI backends(Codex, Claude, Gemini). Supports file references via `@` syntax, parallel task execution with backend selection, and configurable security controls.
+Execute `fish-agent-wrapper` with pluggable backends (`codex`, `claude`, `gemini`, `ampcode`).
 
-## When to Use
+Core capabilities:
+- Single task execution with backend selection
+- Resume by `SESSION_ID`
+- Parallel DAG execution via `--parallel`
+- Per-backend prompt injection files
 
-- Complex code analysis requiring deep understanding
-- Large-scale refactoring across multiple files
-- Automated code generation with backend selection
+## Backend Strategy
+
+| Backend | Command | Default Strength |
+|---------|---------|------------------|
+| codex | `--backend codex` | Deep code analysis and complex implementation (default) |
+| claude | `--backend claude` | Quick fixes, docs, prompt-heavy tasks |
+| gemini | `--backend gemini` | UI/UX and frontend implementation |
+| ampcode | `--backend ampcode` | Plan review, code review, and hard bug fallback |
+
+`ampcode` policy:
+- Default mode is `smart`
+- Recommended for reviewing `dev-plan.md`, PR-level code review, and retrying unresolved bugs
+- Optional mode override: `FISH_AGENT_WRAPPER_AMPCODE_MODE=smart|deep|rush|free`
 
 ## Usage
 
-**HEREDOC syntax** (recommended):
+**HEREDOC (recommended):**
 ```bash
 fish-agent-wrapper --backend codex - [working_dir] <<'EOF'
-<task content here>
+<task content>
 EOF
 ```
 
-**With backend selection**:
+**Ampcode review example:**
 ```bash
-fish-agent-wrapper --backend claude - . <<'EOF'
-<task content here>
+fish-agent-wrapper --backend ampcode - . <<'EOF'
+Review @.claude/specs/auth/dev-plan.md and provide:
+1) critical risks
+2) missing tests
+3) simplification suggestions
 EOF
 ```
 
-**Simple tasks**:
+**Simple task:**
 ```bash
-fish-agent-wrapper --backend codex "simple task" [working_dir]
-fish-agent-wrapper --backend gemini "simple task" [working_dir]
-```
-
-## Backends
-
-| Backend | Command | Description | Best For |
-|---------|---------|-------------|----------|
-| codex | `--backend codex` | OpenAI Codex (default) | Code analysis, complex development |
-| claude | `--backend claude` | Anthropic Claude | Quick fixes, documentation, prompts |
-| gemini | `--backend gemini` | Google Gemini | UI/UX prototyping |
-
-### Backend Selection Guide
-
-**Codex** (default):
-- Deep code understanding and complex logic implementation
-- Large-scale refactoring with precise dependency tracking
-- Algorithm optimization and performance tuning
-- Example: "Analyze the call graph of @src/core and refactor the module dependency structure"
-
-**Claude**:
-- Quick feature implementation with clear requirements
-- Technical documentation, API specs, README generation
-- Professional prompt engineering (e.g., product requirements, design specs)
-- Example: "Generate a comprehensive README for @package.json with installation, usage, and API docs"
-
-**Gemini**:
-- UI component scaffolding and layout prototyping
-- Design system implementation with style consistency
-- Interactive element generation with accessibility support
-- Example: "Create a responsive dashboard layout with sidebar navigation and data visualization cards"
-
-**Backend Switching**:
-- Start with Codex for analysis, switch to Claude for documentation, then Gemini for UI implementation
-- Use per-task backend selection in parallel mode to optimize for each task's strengths
-
-## Parameters
-
-- `task` (required): Task description, supports `@file` references
-- `working_dir` (optional): Working directory (default: current)
-- `--backend` (required): Select AI backend (codex/claude/gemini)
-
-## Return Format
-
-```
-Agent response text here...
-
----
-SESSION_ID: 019a7247-ac9d-71f3-89e2-a823dbd8fd14
+fish-agent-wrapper --backend gemini "build responsive settings page" .
 ```
 
 ## Resume Session
 
 ```bash
-# Resume with codex backend
 fish-agent-wrapper --backend codex resume <session_id> - <<'EOF'
-<follow-up task>
+<follow-up>
 EOF
 
-# Resume with specific backend
-fish-agent-wrapper --backend claude resume <session_id> - <<'EOF'
-<follow-up task>
+fish-agent-wrapper --backend ampcode resume <session_id> - <<'EOF'
+Continue review and focus on race conditions.
 EOF
 ```
 
 ## Parallel Execution
 
-**Default (summary mode - context-efficient):**
 ```bash
 fish-agent-wrapper --parallel <<'EOF'
 ---TASK---
-id: task1
+id: analysis
 backend: codex
-workdir: /path/to/dir
+workdir: .
 ---CONTENT---
-task content
+Analyze architecture and define implementation checkpoints
 ---TASK---
-id: task2
-dependencies: task1
----CONTENT---
-dependent task
-EOF
-```
-
-**Full output mode (for debugging):**
-```bash
-fish-agent-wrapper --parallel --full-output <<'EOF'
-...
-EOF
-```
-
-**Output Modes:**
-- **Summary (default)**: Structured report with changes, output, verification, and review summary.
-- **Full (`--full-output`)**: Complete task messages. Use only when debugging specific failures.
-
-**With per-task backend**:
-```bash
-fish-agent-wrapper --parallel <<'EOF'
----TASK---
-id: task1
-backend: codex
-workdir: /path/to/dir
----CONTENT---
-analyze code structure
----TASK---
-id: task2
+id: impl
 backend: claude
-dependencies: task1
+dependencies: analysis
+workdir: .
 ---CONTENT---
-design architecture based on analysis
+Implement API layer and tests
 ---TASK---
-id: task3
-backend: gemini
-dependencies: task2
+id: review
+backend: ampcode
+dependencies: impl
+workdir: .
 ---CONTENT---
-generate implementation code
+Review diff quality, detect risky changes, propose fixes
 EOF
 ```
 
-**Concurrency Control**:
-Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` to limit concurrent tasks (default: unlimited).
+## Parameters
+
+- `task` (required): task text, supports `@file`
+- `working_dir` (optional): working directory (default current dir)
+- `--backend` (recommended): `codex | claude | gemini | ampcode` (default `codex`)
+
+## Return Format
+
+```
+<assistant message>
+
+---
+SESSION_ID: <session-id>
+```
 
 ## Environment Variables
 
-- `CODEX_TIMEOUT`: Override timeout in milliseconds (default: 7200000 = 2 hours)
-- `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS`: Control Claude CLI permission checks
-  - For **Claude** backend: default is **skip permissions** unless explicitly disabled
-  - Set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=false` to keep Claude permission prompts
-- `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS`: Limit concurrent tasks in parallel mode (default: unlimited, recommended: 8)
-- `FISH_AGENT_WRAPPER_CLAUDE_DIR`: Override the base Claude config dir (default: `~/.claude`)
+- `CODEX_TIMEOUT`: timeout in milliseconds (default `7200000`)
+- `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS`: controls permission skipping behavior
+- `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS`: limit parallel workers
+- `FISH_AGENT_WRAPPER_CLAUDE_DIR`: base Claude config dir (default `~/.claude`)
+- `FISH_AGENT_WRAPPER_AMPCODE_MODE`: ampcode mode override (`smart` default)
 
 ## Invocation Pattern
 
-**Single Task**:
-```
+**Single task:**
+```text
 Bash tool parameters:
 - command: fish-agent-wrapper --backend <backend> - [working_dir] <<'EOF'
   <task content>
   EOF
 - timeout: 7200000
 - description: <brief description>
-
-Note: `--backend` is recommended; supported values: `codex | claude | gemini` (default: `codex`)
 ```
 
-**Parallel Tasks**:
-```
+**Parallel tasks:**
+```text
 Bash tool parameters:
-- command: fish-agent-wrapper --parallel --backend <backend> <<'EOF'
+- command: fish-agent-wrapper --parallel <<'EOF'
   ---TASK---
-  id: task_id
-  backend: <backend>  # Optional, overrides global
-  workdir: /path
-  dependencies: dep1, dep2
+  id: <task-id>
+  backend: <backend>
+  workdir: <path>
+  dependencies: <optional>
   ---CONTENT---
-  task content
+  <task content>
   EOF
 - timeout: 7200000
 - description: <brief description>
-
-Note: Global --backend is required; per-task backend is optional
 ```
 
 ## Critical Rules
 
-**NEVER kill fish-agent-wrapper processes.** Long-running tasks are normal. Instead:
+- Do not kill running `fish-agent-wrapper` processes unless required by timeout policy.
+- For long tasks, inspect logs first, then decide retry.
+- For unresolved bugs after normal implementation loops, add an `ampcode` review/retry task.
 
-1. **Check task status via log file**:
-   ```bash
-   # View real-time output
-   tail -f /tmp/claude/<workdir>/tasks/<task_id>.output
+## Security Notes
 
-   # Check if task is still running
-   cat /tmp/claude/<workdir>/tasks/<task_id>.output | tail -50
-   ```
-
-2. **Wait with timeout**:
-   ```bash
-   # Use TaskOutput tool with block=true and timeout
-   TaskOutput(task_id="<id>", block=true, timeout=300000)
-   ```
-
-3. **Check process without killing**:
-   ```bash
-   ps aux | grep fish-agent-wrapper | grep -v grep
-   ```
-
-**Why:** fish-agent-wrapper tasks often take 2-10 minutes. Killing them wastes API costs and loses progress.
-
-## Security Best Practices
-
-- **Claude Backend**: Permission checks enabled by default
-  - To skip checks: set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=true` or pass `--skip-permissions`
-- **Concurrency Limits**: Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` in production to prevent resource exhaustion
-- **Automation Context**: This wrapper is designed for AI-driven automation where permission prompts would block execution
-
-## Recent Updates
-
-- Multi-backend support for all modes (workdir, resume, parallel)
-- Security controls with configurable permission checks
-- Concurrency limits with worker pool and fail-fast cancellation
+- Automation-first execution can bypass interactive approvals depending on backend settings.
+- In production CI, set explicit worker limits and timeout boundaries.

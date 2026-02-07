@@ -94,14 +94,15 @@ Only one file—minimal and clear.
 
 ### Tools
 - **AskUserQuestion**: interactive requirement clarification
-- **fish-agent-wrapper skill**: analysis, development, testing; supports `--backend` for `codex` / `claude` / `gemini`
+- **fish-agent-wrapper skill**: analysis, development, testing; supports `--backend` for `codex` / `claude` / `gemini` / `ampcode`
 - **dev-plan-generator agent**: generate dev doc (subagent via Task tool, saves context)
 
 ## Backend Selection & Routing
 - **Step 0**: user selects allowed backends; if `仅 codex`, all tasks use codex
 - **UI detection standard**: style files (.css, .scss, styled-components, CSS modules, tailwindcss) OR frontend component code (.tsx, .jsx, .vue) trigger `needs_ui: true`
-- **Task type field**: each task in `dev-plan.md` must have `type: default|ui|quick-fix`
-- **Routing**: `default`→codex, `ui`→gemini, `quick-fix`→claude; if disallowed, fallback to an allowed backend by priority: codex→claude→gemini
+- **Task type field**: each task in `dev-plan.md` must have `type: default|ui|quick-fix|review`
+- **Routing**: `default`→codex, `ui`→gemini, `quick-fix`→claude, `review`→ampcode; if disallowed, fallback to an allowed backend by priority: codex→claude→ampcode→gemini
+- **Ampcode role**: default `smart` mode for plan review, code review, and unresolved bug fallback
 
 ## Key Features
 
@@ -147,6 +148,7 @@ Output:
 - Task 1: Backend API (type=default)
 - Task 2: Password hashing (type=default)
 - Task 3: Frontend form (type=ui)
+- Task 4: Review plan and patch quality (type=review)
 UI detection: needs_ui = true (tailwindcss classes in frontend form)
 
 # Step 3: Generate doc
@@ -156,6 +158,7 @@ dev-plan.md generated with typed tasks ✓
 [task-1] Backend API (codex) → tests → 92% ✓
 [task-2] Password hashing (codex) → tests → 95% ✓
 [task-3] Frontend form (fallback to codex; gemini not allowed) → tests → 91% ✓
+[task-4] Review plan and diff (ampcode smart) → risk list + fix suggestions ✓
 ```
 
 ## Directory Structure
