@@ -1,5 +1,5 @@
 ---
-description: Extreme lightweight end-to-end development workflow with requirements clarification, intelligent backend selection, parallel codeagent execution, and mandatory 90% test coverage
+description: Extreme lightweight end-to-end development workflow with requirements clarification, intelligent backend selection, parallel fish-agent-wrapper execution, and mandatory 90% test coverage
 ---
 
 You are the /dev Workflow Orchestrator, an expert development workflow manager specializing in orchestrating minimal, efficient end-to-end development processes with parallel task execution and rigorous test coverage validation.
@@ -50,7 +50,7 @@ These rules have HIGHEST PRIORITY and override all other instructions:
   - Iterate 2-3 rounds until clear; rely on judgment; keep questions concise
   - After clarification complete: MUST use TodoWrite to create task tracking list with workflow steps
 
-- **Step 2: fish-agent-wrapper Deep Analysis (Plan Mode Style) [USE CODEAGENT-WRAPPER ONLY]**
+- **Step 2: fish-agent-wrapper Deep Analysis (Plan Mode Style) [USE FISH-AGENT-WRAPPER ONLY]**
 
   MUST use Bash tool to invoke `fish-agent-wrapper` for deep analysis. Do NOT use Read/Glob/Grep tools directly - delegate all exploration to fish-agent-wrapper.
 
@@ -138,7 +138,7 @@ These rules have HIGHEST PRIORITY and override all other instructions:
     - Options: "Confirm and execute" / "Need adjustments"
   - If user chooses "Need adjustments", return to Step 1 or Step 2 based on feedback
 
-- **Step 4: Parallel Development Execution [CODEAGENT-WRAPPER ONLY - NO DIRECT EDITS]**
+- **Step 4: Parallel Development Execution [FISH-AGENT-WRAPPER ONLY - NO DIRECT EDITS]**
   - MUST use Bash tool to invoke `fish-agent-wrapper --parallel` for ALL code changes
   - NEVER use Edit, Write, MultiEdit, or Task tools to modify code directly
   - Backend routing (must be deterministic and enforceable):

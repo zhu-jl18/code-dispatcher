@@ -220,7 +220,7 @@ func parseArgs() (*Config, error) {
 	}
 
 	backendName := defaultBackendName
-	skipPermissions := envFlagEnabled("CODEAGENT_SKIP_PERMISSIONS")
+	skipPermissions := envFlagEnabled("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS")
 	filtered := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -305,19 +305,19 @@ func parseArgs() (*Config, error) {
 const maxParallelWorkersLimit = 100
 
 func resolveMaxParallelWorkers() int {
-	raw := strings.TrimSpace(os.Getenv("CODEAGENT_MAX_PARALLEL_WORKERS"))
+	raw := strings.TrimSpace(os.Getenv("FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS"))
 	if raw == "" {
 		return 0
 	}
 
 	value, err := strconv.Atoi(raw)
 	if err != nil || value < 0 {
-		logWarn(fmt.Sprintf("Invalid CODEAGENT_MAX_PARALLEL_WORKERS=%q, falling back to unlimited", raw))
+		logWarn(fmt.Sprintf("Invalid FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS=%q, falling back to unlimited", raw))
 		return 0
 	}
 
 	if value > maxParallelWorkersLimit {
-		logWarn(fmt.Sprintf("CODEAGENT_MAX_PARALLEL_WORKERS=%d exceeds limit, capping at %d", value, maxParallelWorkersLimit))
+		logWarn(fmt.Sprintf("FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS=%d exceeds limit, capping at %d", value, maxParallelWorkersLimit))
 		return maxParallelWorkersLimit
 	}
 

@@ -12,7 +12,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 	backend := ClaudeBackend{}
 
 	t.Run("new mode omits skip-permissions when env disabled", func(t *testing.T) {
-		t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+		t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 		cfg := &Config{Mode: "new", WorkDir: "/repo"}
 		got := backend.BuildArgs(cfg, "todo")
 		want := []string{"-p", "--setting-sources", "", "--output-format", "stream-json", "--verbose", "todo"}
@@ -31,7 +31,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 	})
 
 	t.Run("resume mode includes session id", func(t *testing.T) {
-		t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+		t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 		cfg := &Config{Mode: "resume", SessionID: "sid-123", WorkDir: "/ignored"}
 		got := backend.BuildArgs(cfg, "resume-task")
 		want := []string{"-p", "--setting-sources", "", "-r", "sid-123", "--output-format", "stream-json", "--verbose", "resume-task"}
@@ -41,7 +41,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 	})
 
 	t.Run("resume mode without session still returns base flags", func(t *testing.T) {
-		t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+		t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 		cfg := &Config{Mode: "resume", WorkDir: "/ignored"}
 		got := backend.BuildArgs(cfg, "follow-up")
 		want := []string{"-p", "--setting-sources", "", "--output-format", "stream-json", "--verbose", "follow-up"}

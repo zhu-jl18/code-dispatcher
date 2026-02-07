@@ -532,9 +532,9 @@ func shouldSkipTask(task TaskSpec, failed map[string]TaskResult) (bool, string) 
 	return true, fmt.Sprintf("skipped due to failed dependencies: %s", strings.Join(blocked, ","))
 }
 
-// getStatusSymbols returns status symbols based on ASCII mode.
+	// getStatusSymbols returns status symbols based on ASCII mode.
 func getStatusSymbols() (success, warning, failed string) {
-	if os.Getenv("CODEAGENT_ASCII_MODE") == "true" {
+	if os.Getenv("FISH_AGENT_WRAPPER_ASCII_MODE") == "true" {
 		return "PASS", "WARN", "FAIL"
 	}
 	return "✓", "⚠️", "✗"

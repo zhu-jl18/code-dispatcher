@@ -1,6 +1,6 @@
 # Build artifacts
-codeagent-wrapper
-codeagent-wrapper.exe
+fish-agent-wrapper
+fish-agent-wrapper.exe
 *.test
 
 # Coverage reports

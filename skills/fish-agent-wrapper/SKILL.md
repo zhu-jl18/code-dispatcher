@@ -1,9 +1,9 @@
 ---
-name: codeagent
+name: fish-agent-wrapper
 description: Execute fish-agent-wrapper for multi-backend AI code tasks. Supports Codex, Claude, Gemini, with file references (@syntax) and structured output.
 ---
 
-# Codeagent Wrapper Integration
+# fish-agent-wrapper Integration
 
 ## Overview
 
@@ -153,16 +153,16 @@ EOF
 ```
 
 **Concurrency Control**:
-Set `CODEAGENT_MAX_PARALLEL_WORKERS` to limit concurrent tasks (default: unlimited).
+Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` to limit concurrent tasks (default: unlimited).
 
 ## Environment Variables
 
 - `CODEX_TIMEOUT`: Override timeout in milliseconds (default: 7200000 = 2 hours)
-- `CODEAGENT_SKIP_PERMISSIONS`: Control Claude CLI permission checks
+- `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS`: Control Claude CLI permission checks
   - For **Claude** backend: default is **skip permissions** unless explicitly disabled
-  - Set `CODEAGENT_SKIP_PERMISSIONS=false` to keep Claude permission prompts
-- `CODEAGENT_MAX_PARALLEL_WORKERS`: Limit concurrent tasks in parallel mode (default: unlimited, recommended: 8)
-- `CODEAGENT_CLAUDE_DIR`: Override the base Claude config dir (default: `~/.claude`)
+  - Set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=false` to keep Claude permission prompts
+- `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS`: Limit concurrent tasks in parallel mode (default: unlimited, recommended: 8)
+- `FISH_AGENT_WRAPPER_CLAUDE_DIR`: Override the base Claude config dir (default: `~/.claude`)
 
 ## Invocation Pattern
 
@@ -198,7 +198,7 @@ Note: Global --backend is required; per-task backend is optional
 
 ## Critical Rules
 
-**NEVER kill codeagent processes.** Long-running tasks are normal. Instead:
+**NEVER kill fish-agent-wrapper processes.** Long-running tasks are normal. Instead:
 
 1. **Check task status via log file**:
    ```bash
@@ -220,13 +220,13 @@ Note: Global --backend is required; per-task backend is optional
    ps aux | grep fish-agent-wrapper | grep -v grep
    ```
 
-**Why:** codeagent tasks often take 2-10 minutes. Killing them wastes API costs and loses progress.
+**Why:** fish-agent-wrapper tasks often take 2-10 minutes. Killing them wastes API costs and loses progress.
 
 ## Security Best Practices
 
 - **Claude Backend**: Permission checks enabled by default
-  - To skip checks: set `CODEAGENT_SKIP_PERMISSIONS=true` or pass `--skip-permissions`
-- **Concurrency Limits**: Set `CODEAGENT_MAX_PARALLEL_WORKERS` in production to prevent resource exhaustion
+  - To skip checks: set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=true` or pass `--skip-permissions`
+- **Concurrency Limits**: Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` in production to prevent resource exhaustion
 - **Automation Context**: This wrapper is designed for AI-driven automation where permission prompts would block execution
 
 ## Recent Updates

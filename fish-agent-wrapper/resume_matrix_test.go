@@ -94,7 +94,7 @@ func TestResumeConversation_AllBackends(t *testing.T) {
 			home := t.TempDir()
 			t.Setenv("HOME", home)
 			t.Setenv("USERPROFILE", home)
-			t.Setenv("CODEAGENT_CLAUDE_DIR", t.TempDir())
+			t.Setenv("FISH_AGENT_WRAPPER_CLAUDE_DIR", t.TempDir())
 
 			var calls int
 			newCommandRunner = func(ctx context.Context, name string, args ...string) commandRunner {
@@ -159,7 +159,7 @@ func TestRunParallel_AllBackends_NewMode(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
-	t.Setenv("CODEAGENT_CLAUDE_DIR", t.TempDir())
+	t.Setenv("FISH_AGENT_WRAPPER_CLAUDE_DIR", t.TempDir())
 
 	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	stdinReader = bytes.NewReader([]byte(
@@ -248,7 +248,7 @@ func TestRunParallel_AllBackends_ResumeMode(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
-	t.Setenv("CODEAGENT_CLAUDE_DIR", t.TempDir())
+	t.Setenv("FISH_AGENT_WRAPPER_CLAUDE_DIR", t.TempDir())
 
 	os.Args = []string{"fish-agent-wrapper", "--parallel"}
 	stdinReader = bytes.NewReader([]byte(

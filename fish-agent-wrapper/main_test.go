@@ -1284,7 +1284,7 @@ func TestBackendParseArgs_DashDashStopsFlagParsing(t *testing.T) {
 }
 
 func TestBackendParseArgs_SkipPermissions(t *testing.T) {
-	const envKey = "CODEAGENT_SKIP_PERMISSIONS"
+	const envKey = "FISH_AGENT_WRAPPER_SKIP_PERMISSIONS"
 	t.Setenv(envKey, "true")
 	os.Args = []string{"fish-agent-wrapper", "task"}
 	cfg, err := parseArgs()
@@ -1655,9 +1655,9 @@ func TestRun_DefaultPromptInjectionPrefixesTask(t *testing.T) {
 			stdinReader = strings.NewReader("")
 
 			claudeDir := t.TempDir()
-			t.Setenv("CODEAGENT_CLAUDE_DIR", claudeDir)
+			t.Setenv("FISH_AGENT_WRAPPER_CLAUDE_DIR", claudeDir)
 
-			promptFile := filepath.Join(claudeDir, "codeagent", tt.backend+"-prompt.md")
+			promptFile := filepath.Join(claudeDir, "fish-agent-wrapper", tt.backend+"-prompt.md")
 			if tt.prompt != "" {
 				if err := os.MkdirAll(filepath.Dir(promptFile), 0o755); err != nil {
 					t.Fatalf("MkdirAll: %v", err)
@@ -1859,7 +1859,7 @@ func TestBackendBuildArgs_CodexBackend(t *testing.T) {
 }
 
 func TestBackendBuildArgs_ClaudeBackend(t *testing.T) {
-	t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+	t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 	backend := ClaudeBackend{}
 	cfg := &Config{Mode: "new", WorkDir: defaultWorkdir}
 	got := backend.BuildArgs(cfg, "todo")
@@ -1879,7 +1879,7 @@ func TestBackendBuildArgs_ClaudeBackend(t *testing.T) {
 }
 
 func TestClaudeBackendBuildArgs_OutputValidation(t *testing.T) {
-	t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+	t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 	backend := ClaudeBackend{}
 	cfg := &Config{Mode: "resume"}
 	target := "ensure-flags"
@@ -3701,7 +3701,7 @@ do two`)
 		defer resetTestHooks()
 		cleanupHook = func() {}
 		cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }
-		t.Setenv("CODEAGENT_SKIP_PERMISSIONS", "false")
+		t.Setenv("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS", "false")
 
 		runCodexTaskFn = func(task TaskSpec, timeout int) TaskResult {
 			if !task.SkipPermissions {
@@ -4655,7 +4655,7 @@ func TestResolveMaxParallelWorkers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("CODEAGENT_MAX_PARALLEL_WORKERS", tt.envValue)
+			t.Setenv("FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS", tt.envValue)
 
 			got := resolveMaxParallelWorkers()
 			if got != tt.want {

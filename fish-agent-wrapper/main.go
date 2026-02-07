@@ -177,7 +177,7 @@ func run() (exitCode int) {
 		if parallelIndex != -1 {
 			backendName := defaultBackendName
 			fullOutput := false
-			skipPermissions := envFlagEnabled("CODEAGENT_SKIP_PERMISSIONS")
+			skipPermissions := envFlagEnabled("FISH_AGENT_WRAPPER_SKIP_PERMISSIONS")
 			var extras []string
 
 			for i := 0; i < len(args); i++ {
@@ -587,15 +587,15 @@ Parallel mode examples:
     %[1]s --parallel --full-output < tasks.txt
     %[1]s --parallel <<'EOF'
 
-	Prompt Injection (default-on):
-	    Prompt file path: ${CODEAGENT_CLAUDE_DIR:-~/.claude}/codeagent/<backend>-prompt.md
-	    Backends: codex | claude | gemini
-	    Empty/missing prompt files behave like no injection.
+		Prompt Injection (default-on):
+		    Prompt file path: ${FISH_AGENT_WRAPPER_CLAUDE_DIR:-~/.claude}/fish-agent-wrapper/<backend>-prompt.md
+		    Backends: codex | claude | gemini
+		    Empty/missing prompt files behave like no injection.
 
 Environment Variables:
     CODEX_TIMEOUT         Timeout in milliseconds (default: 7200000)
-    CODEAGENT_ASCII_MODE  Use ASCII symbols instead of Unicode (PASS/WARN/FAIL)
-    CODEAGENT_CLAUDE_DIR  Base Claude config dir (default: ~/.claude)
+    FISH_AGENT_WRAPPER_ASCII_MODE  Use ASCII symbols instead of Unicode (PASS/WARN/FAIL)
+    FISH_AGENT_WRAPPER_CLAUDE_DIR  Base Claude config dir (default: ~/.claude)
 
 Exit Codes:
     0    Success
