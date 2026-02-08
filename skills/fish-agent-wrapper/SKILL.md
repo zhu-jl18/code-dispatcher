@@ -151,7 +151,7 @@ Resume mode relies on backend session context.
  Resume identifier contract:
 - Use the wrapper-returned `SESSION_ID` as the source of truth for follow-up resume commands.
 - Standard form: `fish-agent-wrapper --backend <backend> resume <SESSION_ID> ...`.
-- Backend-native alternatives such as `latest` or numeric indices may exist, but they are optional shortcuts, not the default workflow contract.
+
 
 ## Parallel Execution
 
@@ -162,7 +162,7 @@ Parallel mode uses a dependency DAG scheduler.
 - Tasks in the same DAG layer run concurrently; the next layer starts only after the current layer finishes.
 - If a dependency fails, dependent tasks are skipped.
 - Invalid dependency IDs or dependency cycles fail fast before execution starts.
-- `--backend` in parallel mode is a required global fallback; tasks without `backend` use it. Usally set to `codex`.
+- `--backend` in parallel mode is a required global fallback; tasks without `backend` use it. Usually set to `codex`.
 - `backend` inside a task block overrides the global fallback for that task.
 
 ASCII execution model:
