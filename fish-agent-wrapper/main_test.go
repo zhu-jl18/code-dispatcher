@@ -2196,13 +2196,30 @@ func TestBackendParseJSONStream_GeminiEvents_IgnoresUserContent(t *testing.T) {
 
 func TestBackendParseJSONStream_GeminiEvents_ResultContentPreferred(t *testing.T) {
 	input := `{"type":"init","session_id":"xyz789"}
-{"type":"message","role":"assistant","content":"OK","delta":true,"session_id":"xyz789"}
+{"type":"message","role":"assistant","content":"DELTA","delta":true,"session_id":"xyz789"}
 {"type":"result","status":"success","content":"OK","session_id":"xyz789"}`
 
 	message, threadID := parseJSONStream(strings.NewReader(input))
 
 	if message != "OK" {
 		t.Fatalf("message=%q, want %q", message, "OK")
+	}
+	if threadID != "xyz789" {
+		t.Fatalf("threadID=%q, want %q", threadID, "xyz789")
+	}
+}
+
+func TestBackendParseJSONStream_GeminiEvents_DeltaNilReplacesPriorDeltaStream(t *testing.T) {
+	input := `{"type":"init","session_id":"xyz789"}
+{"type":"message","role":"assistant","content":"A","delta":true,"session_id":"xyz789"}
+{"type":"message","role":"assistant","content":"B","delta":true,"session_id":"xyz789"}
+{"type":"message","role":"assistant","content":"FULL"}
+{"type":"result","status":"success","session_id":"xyz789"}`
+
+	message, threadID := parseJSONStream(strings.NewReader(input))
+
+	if message != "FULL" {
+		t.Fatalf("message=%q, want %q", message, "FULL")
 	}
 	if threadID != "xyz789" {
 		t.Fatalf("threadID=%q, want %q", threadID, "xyz789")

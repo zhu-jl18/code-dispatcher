@@ -289,8 +289,9 @@ func parseJSONStreamInternal(r io.Reader, warnFn func(string), infoFn func(strin
 			if captureContent && event.Content != "" {
 				if event.Type == "result" {
 					geminiResult = event.Content
-				} else if event.Delta != nil {
-					if *event.Delta {
+				} else {
+					isDeltaChunk := event.Delta != nil && *event.Delta
+					if isDeltaChunk {
 						geminiSawDelta = true
 						geminiBuffer.WriteString(event.Content)
 					} else {
@@ -300,8 +301,6 @@ func parseJSONStreamInternal(r io.Reader, warnFn func(string), infoFn func(strin
 						}
 						geminiBuffer.WriteString(event.Content)
 					}
-				} else {
-					geminiBuffer.WriteString(event.Content)
 				}
 			}
 
