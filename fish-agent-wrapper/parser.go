@@ -142,6 +142,8 @@ func parseJSONStreamInternal(r io.Reader, warnFn func(string), infoFn func(strin
 		codexMessage   string
 		claudeMessage  string
 		geminiBuffer   strings.Builder
+		geminiResult   string
+		geminiSawDelta bool
 		ampcodeMessage string
 	)
 
@@ -279,8 +281,27 @@ func parseJSONStreamInternal(r io.Reader, warnFn func(string), infoFn func(strin
 				threadID = event.SessionID
 			}
 
-			if event.Content != "" {
-				geminiBuffer.WriteString(event.Content)
+			captureContent := event.Type == "message" || event.Type == "result"
+			if event.Role == "user" {
+				captureContent = false
+			}
+
+			if captureContent && event.Content != "" {
+				if event.Type == "result" {
+					geminiResult = event.Content
+				} else {
+					isDeltaChunk := event.Delta != nil && *event.Delta
+					if isDeltaChunk {
+						geminiSawDelta = true
+						geminiBuffer.WriteString(event.Content)
+					} else {
+						if geminiSawDelta {
+							geminiBuffer.Reset()
+							geminiSawDelta = false
+						}
+						geminiBuffer.WriteString(event.Content)
+					}
+				}
 			}
 
 			if event.Status != "" {
@@ -324,6 +345,8 @@ func parseJSONStreamInternal(r io.Reader, warnFn func(string), infoFn func(strin
 	}
 
 	switch {
+	case geminiResult != "":
+		message = geminiResult
 	case geminiBuffer.Len() > 0:
 		message = geminiBuffer.String()
 	case claudeMessage != "":
