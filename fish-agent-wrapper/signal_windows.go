@@ -12,6 +12,11 @@ import (
 	"strings"
 )
 
+func prepareCommandForSignals(cmd *exec.Cmd) {
+	// No-op on Windows. Tree cleanup is handled in sendTermSignal/sendKillSignal.
+	_ = cmd
+}
+
 // sendTermSignal on Windows directly kills the process.
 // SIGTERM is not supported on Windows.
 func sendTermSignal(proc processHandle) error {
@@ -37,6 +42,11 @@ func sendTermSignal(proc processHandle) error {
 		}
 	}
 	return proc.Kill()
+}
+
+// sendKillSignal forces full process-tree termination on Windows.
+func sendKillSignal(proc processHandle) error {
+	return sendTermSignal(proc)
 }
 
 func killProcessTree(pid int) error {
