@@ -172,7 +172,9 @@ func (p *realProcess) Signal(sig os.Signal) error {
 
 // newCommandRunner creates a new commandRunner (test hook injection point)
 var newCommandRunner = func(ctx context.Context, name string, args ...string) commandRunner {
-	return &realCmd{cmd: commandContext(ctx, name, args...)}
+	cmd := commandContext(ctx, name, args...)
+	prepareCommandForSignals(cmd)
+	return &realCmd{cmd: cmd}
 }
 
 type parseResult struct {
@@ -1129,7 +1131,7 @@ waitLoop:
 					break waitLoop
 				case <-time.After(forceKillWaitTimeout):
 					if proc := cmd.Process(); proc != nil {
-						_ = proc.Kill()
+						_ = sendKillSignal(proc)
 					}
 				}
 			}
@@ -1153,7 +1155,7 @@ waitLoop:
 					break waitLoop
 				case <-time.After(forceKillWaitTimeout):
 					if proc := cmd.Process(); proc != nil {
-						_ = proc.Kill()
+						_ = sendKillSignal(proc)
 					}
 				}
 			}
@@ -1310,7 +1312,7 @@ func forwardSignals(ctx context.Context, cmd commandRunner, logErrorFn func(stri
 				_ = sendTermSignal(proc)
 				time.AfterFunc(time.Duration(forceKillDelay.Load())*time.Second, func() {
 					if p := cmd.Process(); p != nil {
-						_ = p.Kill()
+						_ = sendKillSignal(p)
 					}
 				})
 			}
@@ -1382,7 +1384,7 @@ func terminateCommand(cmd commandRunner) *forceKillTimer {
 	done := make(chan struct{}, 1)
 	timer := time.AfterFunc(time.Duration(forceKillDelay.Load())*time.Second, func() {
 		if p := cmd.Process(); p != nil {
-			_ = p.Kill()
+			_ = sendKillSignal(p)
 		}
 		close(done)
 	})
@@ -1403,7 +1405,7 @@ func terminateProcess(cmd commandRunner) *time.Timer {
 
 	return time.AfterFunc(time.Duration(forceKillDelay.Load())*time.Second, func() {
 		if p := cmd.Process(); p != nil {
-			_ = p.Kill()
+			_ = sendKillSignal(p)
 		}
 	})
 }
