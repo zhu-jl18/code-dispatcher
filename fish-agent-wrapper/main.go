@@ -589,8 +589,8 @@ func printHelp() {
 Usage:
 	%[1]s --backend <backend> "task" [workdir]
 	%[1]s --backend <backend> - [workdir]              Read task from stdin
-	%[1]s --backend <backend> resume <session_id> "task" [workdir]
-	%[1]s --backend <backend> resume <session_id> - [workdir]
+	%[1]s --backend <backend> resume <session_id> "task"
+	%[1]s --backend <backend> resume <session_id> -     Read follow-up task from stdin
 	%[1]s --parallel --backend <backend>               Run tasks in parallel (config from stdin)
 	%[1]s --parallel --backend <backend> --full-output Run tasks in parallel with full output (legacy)
 	%[1]s --version
@@ -602,6 +602,7 @@ Supported backends:
 Common mistakes:
 	--resume is invalid; use: resume <session_id> <task>
 	resume and new mode both require: --backend <backend>
+	resume should not append [workdir]; it follows backend session context
 
 Parallel mode examples:
 	%[1]s --parallel --backend codex < tasks.txt

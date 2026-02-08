@@ -64,6 +64,9 @@ Behavior:
 Useful env vars:
 - `FISH_AGENT_WRAPPER_CLAUDE_DIR`: base dir (default `~/.claude`)
 
+For runtime behavior (approval/bypass flags, timeout, and parallel propagation rules), see:
+- `docs/runtime-config.md`
+
 ## Usage
 
 In Claude Code:

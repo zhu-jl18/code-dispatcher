@@ -67,6 +67,9 @@ bash scripts/build-dist.sh
 常用环境变量：
 - `FISH_AGENT_WRAPPER_CLAUDE_DIR`：Claude 配置根目录（默认 `~/.claude`）
 
+运行时配置（审批/绕过、超时、并行传播规则）详见：
+- `docs/runtime-config.md`
+
 ## 使用
 
 在 Claude Code 里：

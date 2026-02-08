@@ -262,37 +262,41 @@ analyze @src and summarize architecture changes
 EOF
 ```
 
-**Concurrency Control**:
-Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` to limit concurrent tasks (default: unlimited).
+## Runtime Config and Patterns
 
-## Environment Variables
+- Runtime environment and approval policy are pre-configured by the human/operator.
+- Do not inject, override, or document environment variable values in this skill.
+- Treat wrapper-internal timeout as a very long fallback configured by the operator.
+- Control actual waiting budget via the host tool-call timeout.
+- Timeout tiers for Claude Code Bash calls:
+  - Simple tasks: `600000` ms (10 minutes) minimum.
+  - Normal tasks: `1800000` ms (30 minutes) recommended default.
+  - Complex Codex tasks: `7200000` ms (2 hours).
+- Do not use short timeouts like `300000` (5 minutes) for normal or complex tasks.
 
-- `CODEX_TIMEOUT`: Override timeout in milliseconds (default: 7200000 = 2 hours)
-- `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS`: Control Claude CLI permission checks
-  - For **Claude** backend: default is **skip permissions** unless explicitly disabled
-  - Set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=false` to keep Claude permission prompts
-- `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS`: Limit concurrent tasks in parallel mode (default: unlimited, recommended: 8)
-- `FISH_AGENT_WRAPPER_CLAUDE_DIR`: Override the base Claude config dir (default: `~/.claude`)
-- `FISH_AGENT_WRAPPER_AMPCODE_MODE`: Set Ampcode mode (`smart|deep|rush|free`, default: `smart`)
-
-## Invocation Pattern
+Invocation Pattern:
 
 **Single Task**:
 ```
-Bash tool parameters:
-- command: fish-agent-wrapper --backend <backend> - [working_dir] <<'EOF'
+Host-agnostic tool-call template (field names vary by runtime):
+- command payload (`command` or `cmd`):
+  fish-agent-wrapper --backend <backend> - [working_dir] <<'EOF'
   <task content>
   EOF
-- timeout: 7200000
-- description: <brief description>
+- timeout field (`timeout` / `timeout_ms` / equivalent): choose by tier (`600000` / `1800000` / `7200000`)
+- description field: optional
+
+Field names depend on the host tool schema.
+Timeout policy: always set explicit timeout by task complexity; do not rely on implicit defaults.
 
 Note: `--backend` is required; supported values: `codex | claude | gemini | ampcode`
 ```
 
 **Parallel Tasks**:
 ```
-Bash tool parameters:
-- command: fish-agent-wrapper --parallel --backend <backend> <<'EOF'
+Host-agnostic tool-call template (field names vary by runtime):
+- command payload (`command` or `cmd`):
+  fish-agent-wrapper --parallel --backend <backend> <<'EOF'
   ---TASK---
   id: task_id
   backend: <backend>  # Optional, overrides global
@@ -301,15 +305,18 @@ Bash tool parameters:
   ---CONTENT---
   task content
   EOF
-- timeout: 7200000
-- description: <brief description>
+- timeout field (`timeout` / `timeout_ms` / equivalent): choose by tier (`600000` / `1800000` / `7200000`)
+- description field: optional
+
+Field names depend on the host tool schema.
+Timeout policy: always set explicit timeout by task complexity; do not rely on implicit defaults.
 
 Note: Global --backend is required; per-task backend is optional
 ```
 
 ## Critical Rules
 
-**NEVER kill fish-agent-wrapper processes.** Long-running tasks are normal. Instead:
+**NEVER kill fish-agent-wrapper processes by default.** Long-running tasks are normal. Instead:
 
 1. **Check task status via log file**:
    ```bash
@@ -320,10 +327,19 @@ Note: Global --backend is required; per-task backend is optional
    cat /tmp/claude/<workdir>/tasks/<task_id>.output | tail -50
    ```
 
-2. **Wait with timeout**:
-   ```bash
-   # Use TaskOutput tool with block=true and timeout
-   TaskOutput(task_id="<id>", block=true, timeout=300000)
+2. **Wait with tiered timeout (host-runtime API)**:
+  - Use the host runtime's blocking wait API (for example: TaskOutput/wait-result equivalents).
+  - Choose timeout by complexity:
+    - Simple: `600000` (10m)
+    - Normal: `1800000` (30m)
+    - Complex Codex: `7200000` (2h)
+  - If the wait call times out, do not kill the process; re-check logs/process and continue waiting.
+
+  - Concrete examples (if your host runtime supports `TaskOutput`):
+   ```text
+   TaskOutput(task_id="<id>", block=true, timeout=600000)
+   TaskOutput(task_id="<id>", block=true, timeout=1800000)
+   TaskOutput(task_id="<id>", block=true, timeout=7200000)
    ```
 
 3. **Check process without killing**:
@@ -331,18 +347,46 @@ Note: Global --backend is required; per-task backend is optional
    ps aux | grep fish-agent-wrapper | grep -v grep
    ```
 
-**Why:** fish-agent-wrapper tasks often take 2-10 minutes. Killing them wastes API costs and loses progress.
+**Why:** fish-agent-wrapper tasks often take 5-120 minutes. Killing them wastes API costs and loses progress.
 
-## Security Best Practices
+## Emergency Stop (User-Requested Only)
 
-- **Claude Backend**: Permission checks enabled by default
-  - To skip checks: set `FISH_AGENT_WRAPPER_SKIP_PERMISSIONS=true` or pass `--skip-permissions`
-- **Concurrency Limits**: Set `FISH_AGENT_WRAPPER_MAX_PARALLEL_WORKERS` in production to prevent resource exhaustion
-- **Automation Context**: This wrapper is designed for AI-driven automation where permission prompts would block execution
+- Hard rule: kill/terminate is allowed **only when the user explicitly requests it**.
+- Do not kill processes automatically because of long runtime or wait timeout.
+- Use staged termination and stop escalation as soon as processes exit.
+- Name-based global cleanup (`pkill -x codex/claude/gemini/amp`) is prohibited.
 
-## Recent Updates
+1. **Graceful stop wrapper first**:
+   ```bash
+   # Inspect running wrapper processes
+   pgrep -fa fish-agent-wrapper
 
-- Multi-backend support for all modes (workdir, resume, parallel)
-- Security controls with configurable permission checks
-- Concurrency limits with worker pool and fail-fast cancellation
-- Ampcode backend support for new/resume/parallel execution
+   # Soft interrupt first
+   pkill -INT -f '(^|/)fish-agent-wrapper( |$)'
+   ```
+
+2. **Escalate only if still running**:
+   ```bash
+   pkill -TERM -f '(^|/)fish-agent-wrapper( |$)'
+   sleep 2
+   pkill -KILL -f '(^|/)fish-agent-wrapper( |$)'
+   ```
+
+3. **Cleanup only descendants of the target wrapper PID (safe default)**:
+   ```bash
+   # Pick target wrapper PID first (example: newest one)
+   WRAPPER_PID=$(pgrep -n -f '(^|/)fish-agent-wrapper( |$)')
+
+   # TERM direct children of this wrapper only
+   pkill -TERM -P "$WRAPPER_PID" 2>/dev/null || true
+   sleep 2
+
+   # If still present, escalate to KILL for direct children only
+   pkill -KILL -P "$WRAPPER_PID" 2>/dev/null || true
+   ```
+
+4. **Post-check**:
+   ```bash
+   pgrep -fa fish-agent-wrapper
+   pgrep -fa 'codex|claude|gemini|amp'
+   ```
