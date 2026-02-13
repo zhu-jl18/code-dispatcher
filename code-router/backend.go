@@ -62,10 +62,6 @@ func buildClaudeArgs(cfg *Config, targetArg string) []string {
 		args = append(args, "--dangerously-skip-permissions")
 	}
 
-	// Prevent infinite recursion: disable all setting sources (user, project, local)
-	// This ensures a clean execution environment without CLAUDE.md or skills that would trigger code-router
-	args = append(args, "--setting-sources", "")
-
 	if cfg.Mode == "resume" {
 		if cfg.SessionID != "" {
 			// Claude CLI uses -r <session_id> for resume.

@@ -13,7 +13,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 		t.Cleanup(resetRuntimeSettingsForTest)
 		cfg := &Config{Mode: "new", WorkDir: "/repo"}
 		got := backend.BuildArgs(cfg, "todo")
-		want := []string{"-p", "--setting-sources", "", "--output-format", "stream-json", "--verbose", "todo"}
+		want := []string{"-p", "--output-format", "stream-json", "--verbose", "todo"}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %v, want %v", got, want)
 		}
@@ -22,7 +22,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 	t.Run("new mode includes skip-permissions by default", func(t *testing.T) {
 		cfg := &Config{Mode: "new", SkipPermissions: false}
 		got := backend.BuildArgs(cfg, "-")
-		want := []string{"-p", "--dangerously-skip-permissions", "--setting-sources", "", "--output-format", "stream-json", "--verbose", "-"}
+		want := []string{"-p", "--dangerously-skip-permissions", "--output-format", "stream-json", "--verbose", "-"}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %v, want %v", got, want)
 		}
@@ -33,7 +33,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 		t.Cleanup(resetRuntimeSettingsForTest)
 		cfg := &Config{Mode: "resume", SessionID: "sid-123", WorkDir: "/ignored"}
 		got := backend.BuildArgs(cfg, "resume-task")
-		want := []string{"-p", "--setting-sources", "", "-r", "sid-123", "--output-format", "stream-json", "--verbose", "resume-task"}
+		want := []string{"-p", "-r", "sid-123", "--output-format", "stream-json", "--verbose", "resume-task"}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %v, want %v", got, want)
 		}
@@ -44,7 +44,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 		t.Cleanup(resetRuntimeSettingsForTest)
 		cfg := &Config{Mode: "resume", WorkDir: "/ignored"}
 		got := backend.BuildArgs(cfg, "follow-up")
-		want := []string{"-p", "--setting-sources", "", "--output-format", "stream-json", "--verbose", "follow-up"}
+		want := []string{"-p", "--output-format", "stream-json", "--verbose", "follow-up"}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %v, want %v", got, want)
 		}
@@ -53,7 +53,7 @@ func TestClaudeBuildArgs_ModesAndPermissions(t *testing.T) {
 	t.Run("resume mode can opt-in skip permissions", func(t *testing.T) {
 		cfg := &Config{Mode: "resume", SessionID: "sid-123", SkipPermissions: true}
 		got := backend.BuildArgs(cfg, "resume-task")
-		want := []string{"-p", "--dangerously-skip-permissions", "--setting-sources", "", "-r", "sid-123", "--output-format", "stream-json", "--verbose", "resume-task"}
+		want := []string{"-p", "--dangerously-skip-permissions", "-r", "sid-123", "--output-format", "stream-json", "--verbose", "resume-task"}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %v, want %v", got, want)
 		}
