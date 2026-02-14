@@ -46,7 +46,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Overwrite existing files",
     )
     p.add_argument(
-        "--skip-router",
+        "--skip-dispatcher",
         action="store_true",
         help="Skip installing code-dispatcher binary (only install runtime config/assets)",
     )
@@ -266,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
     _install_env_template(install_dir, force=args.force)
 
     router_path: Path | None = None
-    if not args.skip_router:
+    if not args.skip_dispatcher:
         try:
             router_path = _install_router_from_release(
                 install_dir,
@@ -276,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         except (FileNotFoundError, RuntimeError) as e:
             print(f"ERROR: {e}", file=sys.stderr)
-            print("Hint: verify network access and release assets, or use --skip-router to install config only.", file=sys.stderr)
+            print("Hint: verify network access and release assets, or use --skip-dispatcher to install config only.", file=sys.stderr)
             return 1
 
     print(f"Installed to: {install_dir}")

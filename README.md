@@ -4,6 +4,8 @@
   <strong>中文</strong> | <a href="README.en.md">English</a>
 </p>
 
+> 接收任务 → 选后端 → 构建参数 → 分发执行 → 收集结果。这就是 dispatch。
+
 原始灵感以及部分代码来源 `cexll/myclaude`，特此感谢。
 
 你会得到什么（Key Concepts）：
@@ -30,7 +32,7 @@ python3 install.py
 可选参数：
 ```bash
 python3 install.py --install-dir ~/.code-dispatcher --force
-python3 install.py --skip-router
+python3 install.py --skip-dispatcher
 python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
 ```
 
@@ -47,7 +49,7 @@ python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
 
 提示：
 - 在 WSL 里运行 `install.py` 会安装 Linux 二进制；在 macOS（Apple Silicon）里运行会安装 Darwin arm64 二进制；在 Windows 里运行会安装 Windows `.exe`。
-- 需要网络访问 GitHub Release；如只想更新配置文件，使用 `--skip-router`。
+- 需要网络访问 GitHub Release；如只想更新配置文件，使用 `--skip-dispatcher`。
 
 ## 本地构建（可选）
 

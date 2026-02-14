@@ -4,6 +4,8 @@
   <a href="README.md">中文</a> | <strong>English</strong>
 </p>
 
+> Receive task → select backend → build args → dispatch execution → collect results. That's dispatch.
+
 Fork notice:
 - This is a personal, heavily simplified fork derived from `cexll/myclaude`.
 - Scope: `/dev` workflow + `code-dispatcher`. Everything else is intentionally removed.
@@ -31,7 +33,7 @@ python3 install.py
 Optional:
 ```bash
 python3 install.py --install-dir ~/.code-dispatcher --force
-python3 install.py --skip-router
+python3 install.py --skip-dispatcher
 python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
 ```
 
@@ -48,7 +50,7 @@ Not automated (manual by design):
 
 Notes:
 - `install.py` requires network access to GitHub Releases for binary installation.
-- Use `--skip-router` if you only need runtime config/assets.
+- Use `--skip-dispatcher` if you only need runtime config/assets.
 
 ## Local Build (Optional)
 
