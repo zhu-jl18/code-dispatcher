@@ -518,7 +518,7 @@ func TestLoggerCoverageSuite(t *testing.T) {
 	}{
 		{"TestBackendParseJSONStream_CoverageSuite", TestBackendParseJSONStream_CoverageSuite},
 		{"TestVersionCoverageFullRun", TestVersionCoverageFullRun},
-		{"TestMainWrapperHelp", TestMainWrapperHelp},
+		{"TestMainDispatcherHelp", TestMainDispatcherHelp},
 
 		{"TestExecutorHelperCoverage", TestExecutorHelperCoverage},
 		{"TestExecutorRunTaskWithContext", TestExecutorRunTaskWithContext},
@@ -577,7 +577,7 @@ func TestLoggerCoverageSuite(t *testing.T) {
 		{"TestBackendDiscardInvalidJSON", TestBackendDiscardInvalidJSON},
 		{"TestBackendDiscardInvalidJSONBuffer", TestBackendDiscardInvalidJSONBuffer},
 
-		{"TestCurrentWrapperNameFallsBackToExecutable", TestCurrentWrapperNameFallsBackToExecutable},
+		{"TestCurrentDispatcherNameFallsBackToExecutable", TestCurrentDispatcherNameFallsBackToExecutable},
 
 		{"TestIsProcessRunning", TestIsProcessRunning},
 		{"TestGetProcessStartTimeReadsProcStat", TestGetProcessStartTimeReadsProcStat},

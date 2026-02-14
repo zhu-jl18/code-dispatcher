@@ -3647,7 +3647,7 @@ task`)
 	})
 }
 
-func TestMainWrapperHelp(t *testing.T) {
+func TestMainDispatcherHelp(t *testing.T) {
 	defer resetTestHooks()
 	exitCalled := -1
 	exitFn = func(code int) { exitCalled = code }
@@ -4370,7 +4370,7 @@ func TestBackendRunCoverage(t *testing.T) {
 		{"ExplicitStdinEmpty", TestRun_ExplicitStdinEmpty},
 		{"ExplicitStdinReadError", TestRun_ExplicitStdinReadError},
 		{"PipedTaskReadError", TestRun_PipedTaskReadError},
-		{"MainWrapperHelp", TestMainWrapperHelp},
+		{"MainDispatcherHelp", TestMainDispatcherHelp},
 	}
 
 	for _, tc := range suite {

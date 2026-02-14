@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestCurrentWrapperNameFallsBackToExecutable(t *testing.T) {
+func TestCurrentDispatcherNameFallsBackToExecutable(t *testing.T) {
 	defer resetTestHooks()
 
 	tempDir := t.TempDir()

@@ -6,19 +6,15 @@
 
 > Receive task → select backend → build args → dispatch execution → collect results. That's dispatch.
 
-Fork notice:
-- This is a personal, heavily simplified fork derived from `cexll/myclaude`.
-- Scope: `/dev` workflow + `code-dispatcher`. Everything else is intentionally removed.
-
 What you get:
-- `/dev` workflow (requirements -> plan -> parallel execution -> verification)
-- `code-council` skill (multi-perspective parallel code review with host agent final pass)
-- `code-dispatcher` (Go executor; backends: `codex` / `claude` / `gemini`; core: `--parallel`)
+- `dev` skill & command: requirements clarification → plan → select backend → parallel execution → verification
+- `code-dispatcher` executor & skill: Go executor; unified 3 backends `codex/claude/gemini`; core mechanisms `--parallel` & `--resume`; usage guide (for AI consumption, full and flash variants)
+- `code-council` skill: multi-perspective parallel code review (2–3 AI reviewers in parallel + host agent final pass)
 
 ## Backend Positioning (Recommended)
 
-- `codex`: default implementation backend (complex logic, multi-file refactors, debugging)
-- `claude`: fast fixes, config updates, documentation cleanup
+- `codex`: complex logic, bug fixes, optimization & refactoring
+- `claude`: quick tasks, review, supplementary analysis
 - `gemini`: frontend UI/UX prototyping, styling, and interaction polish
 - Invocation rule: all backends must be invoked through `code-dispatcher`; do not call `codex` / `claude` / `gemini` directly.
 
@@ -45,12 +41,12 @@ Installer outputs:
 Not automated (manual by design):
 - No auto-copy of `skills/`, `dev-workflow/commands`, or `dev-workflow/agents` into your target CLI root/project scope
 - Manually copy what you need based on your target CLI:
-  - **Skills**: pick from `skills/*` (for example: `skills/dev`, `skills/code-dispatcher`, `skills/code-council`)
+  - **Skills**: pick from `skills/*` (for example: `skills/dev`, `skills/code-dispatcher` or `skills/code-dispatcher-flash`, `skills/code-council`)
   - **/dev command (Claude Code, etc.)**: use `dev-workflow/commands/dev.md` and `dev-workflow/agents/*`
 
 Notes:
-- `install.py` requires network access to GitHub Releases for binary installation.
-- Use `--skip-dispatcher` if you only need runtime config/assets.
+- Running `install.py` under WSL installs the Linux binary; on macOS (Apple Silicon) it installs the Darwin arm64 binary; on Windows it installs the `.exe`.
+- Requires network access to GitHub Releases; use `--skip-dispatcher` if you only need runtime config/assets.
 
 ## Local Build (Optional)
 
@@ -95,3 +91,7 @@ Review @src/auth/ using code-council
 cd code-dispatcher
 go test ./...
 ```
+
+## Acknowledgments
+
+Original inspiration and partial code from [`cexll/myclaude`](https://github.com/cexll/myclaude), with thanks.

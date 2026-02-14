@@ -6,16 +6,14 @@
 
 > 接收任务 → 选后端 → 构建参数 → 分发执行 → 收集结果。这就是 dispatch。
 
-原始灵感以及部分代码来源 `cexll/myclaude`，特此感谢。
-
-你会得到什么（Key Concepts）：
-- `dev` commands or skill：需求澄清 → 计划 →选择后端 → 并行执行 → 验证
-- `code-dispatcher` executor and skill：Go 写的执行器；统一 3 个后端 `codex/claude/gemini`；核心机制 `--parallel` && `--resume`;配套使用guide(给ai看的)
-- `code-council` skill：多视角并行代码评审（2-3 个 AI reviewer 并行 + host agent 终审）
+你会得到什么：
+- `dev` skill & command：需求澄清 → 计划 → 选择后端 → 并行执行 → 验证
+- `code-dispatcher` executor & skill：Go 写的执行器；统一 3 个后端 `codex/claude/gemini`；核心机制 `--parallel` & `--resume`；配套使用指南（给 AI 看的，分 full 和 flash 两版）
+- `code-council` skill：多视角并行代码评审（2–3 个 AI reviewer 并行 + host agent 终审）
 
 ## 后端定位（仅推荐，可自由指定）
 
-- `codex`：复杂逻辑、bug修复、优化重构
+- `codex`：复杂逻辑、bug 修复、优化重构
 - `claude`：快速任务、review、补充分析
 - `gemini`：前端 UI/UX 原型、样式和交互细化
 - 调用入口约束：后端都只通过 `code-dispatcher` 调用；不要直接调用 `codex` / `claude` / `gemini` 命令。
@@ -44,7 +42,7 @@ python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
 不会自动做的事（必须手动）：
 - 不会自动复制 `skills/` / `dev-workflow/commands` / `dev-workflow/agents` 到你的目标 CLI root 或 project scope
 - 需要按你的目标 CLI 自行手动复制：
-  - **Skills**：从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/code-dispatcher`、`skills/code-council`）
+  - **Skills**：从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/code-dispatcher` 或 `skills/code-dispatcher-flash`、`skills/code-council`）
   - **/dev command（Claude Code 等）**：使用 `dev-workflow/commands/dev.md` 与 `dev-workflow/agents/*`
 
 提示：
@@ -94,3 +92,7 @@ Review @src/auth/ using code-council
 cd code-dispatcher
 go test ./...
 ```
+
+## 致谢
+
+原始灵感以及部分代码来源 [`cexll/myclaude`](https://github.com/cexll/myclaude)，特此感谢。
