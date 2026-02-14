@@ -1027,7 +1027,7 @@ func runTaskWithContext(parentCtx context.Context, taskSpec TaskSpec, backend Ba
 		parseCh <- parseResult{message: msg, threadID: tid}
 	}()
 
-	logInfoFn(fmt.Sprintf("Starting %s with args: %s %s...", commandName, commandName, strings.Join(backendArgs[:min(5, len(backendArgs))], " ")))
+	logInfoFn(fmt.Sprintf("Starting %s with args: %s...", commandName, strings.Join(backendArgs[:min(5, len(backendArgs))], " ")))
 
 	if err := cmd.Start(); err != nil {
 		closeWithReason(stdout, "start-failed")

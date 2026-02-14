@@ -350,7 +350,7 @@ func TestExecutorHelperCoverage(t *testing.T) {
 		}
 	})
 
-	t.Run("executeConcurrentWrapper", func(t *testing.T) {
+	t.Run("executeConcurrentDispatcher", func(t *testing.T) {
 		orig := runParallelTaskFn
 		defer func() { runParallelTaskFn = orig }()
 		runParallelTaskFn = func(task TaskSpec, timeout int) TaskResult {
