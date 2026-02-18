@@ -63,21 +63,6 @@ Collect these signals with any suitable `gh` query pattern:
 Do not start fix-or-rebut decisions if review body text is missing.
 
 ## CodeRabbit Rate-Limit Fallback
-Trigger fallback when CodeRabbit explicitly reports rate limiting (`rate limit exceeded`, `secondary rate limit`, or equivalent) during active PR review loops.
-
-### Fallback Action
-1. Host agent invokes `code-dispatcher --backend codex` for an independent PR review.
-2. Review input must include: PR number, base/head refs or commit SHA, changed files/diff context, and unresolved review threads.
-3. Instruct dispatched reviewer to publish findings directly to GitHub review threads (line-level when possible, summary comment otherwise).
-4. Treat fallback comments as normal review signals and continue fix/rebut loop.
-
-### Posting Contract for Fallback Reviewer
-1. Post only actionable findings with concrete file/line evidence.
-2. Do not duplicate already-addressed threads.
-3. Tag each finding with severity and a short verification note.
-4. If no actionable issues are found, post a brief "no additional blocking findings" summary.
-
-### Rate-Limit Hygiene
-1. Run at most one fallback review per head SHA to avoid comment storms.
-2. Prefer batching related fixes before next push when review loops are frequent.
-3. If GitHub comment posting fails due permission/token issues, escalate to user.
+When CodeRabbit reports rate limiting, fall back to `code-dispatcher --backend codex` for review.
+Ensure findings end up as GitHub PR comments (either codex posts directly, or host agent collects and posts) so they are visible in the PR history.
+Treat fallback findings as normal review signals and continue the fix/rebut loop.

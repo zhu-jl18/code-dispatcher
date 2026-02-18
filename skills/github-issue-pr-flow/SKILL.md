@@ -23,11 +23,7 @@ Execute phases in order with no user confirmation gates unless escalation rules 
 
 ### Phase 0: Sync Base Branch
 - Fetch and fast-forward base before creating or updating working branches.
-- If `git pull --ff-only` fails:
-1. Stop automatic progression for this branch.
-2. Report the exact failure and conflicting refs to user.
-3. Ask user to choose between: manual conflict handling, creating a fresh branch from remote base, or aborting this run.
-4. Never perform automatic hard reset or force push.
+- If `git pull --ff-only` fails, stop and escalate to user. Never hard reset or force push automatically.
 
 ### Phase 1: Decompose Into Issues
 - Decompose by deliverables, not by file counts.
@@ -52,11 +48,9 @@ Execute phases in order with no user confirmation gates unless escalation rules 
 
 ### Phase 5: Triage Review Findings
 - Decide each finding independently: fix, rebut with evidence, or align with repo convention.
-- Do not mirror reviewer severity blindly; classify by reproducibility, code impact, and CI/test evidence.
 - Reply under each review comment and resolve each thread after handling.
 - Re-run CI after each push; keep looping until stable or escalation is required.
 - Limit autonomous rebut/fix loops to 2 rounds, then escalate if blocking findings remain.
-- During rapid push/re-review cycles, batch compatible fixes to reduce external review rate-limit pressure.
 
 ### Phase 6: Squash Merge and Closure
 - Merge using squash and delete remote branch.
