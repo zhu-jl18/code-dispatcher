@@ -11,6 +11,7 @@ fetch → verify → fix or rebut → reply under thread → resolve thread.
 
 ## Context Detection
 ```bash
+export GH_PAGER=cat
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 PR=$(gh pr view --json number -q .number)
 ```
@@ -23,11 +24,11 @@ Collect both review-level summaries and line-level comment threads:
 ```bash
 # Review summaries
 gh pr view $PR --json reviews \
-  --jq '[.reviews[] | {author: .author.login, state: .state, body: .body[:600]}]'
+  --jq '[.reviews[] | {author: .author.login, state: .state, body: .body}]'
 
 # Line-level comment threads (with IDs for reply/resolve)
-gh api repos/$REPO/pulls/$PR/comments \
-  --jq '[.[] | {id: .id, author: .user.login, path: .path, line: .original_line, body: .body[:400], in_reply_to: .in_reply_to_id}]'
+gh api repos/$REPO/pulls/$PR/comments --paginate \
+  --jq '[.[] | {id: .id, author: .user.login, path: .path, line: (.line // .original_line), body: .body, in_reply_to: .in_reply_to_id}]'
 
 # CI status
 gh pr checks $PR
@@ -46,7 +47,7 @@ gh api graphql -f query='
 query($owner: String!, $name: String!, $pr: Int!) {
   repository(owner: $owner, name: $name) {
     pullRequest(number: $pr) {
-      reviewThreads(first: 50) {
+      reviewThreads(first: 100) {
         nodes { id isResolved comments(first: 1) { nodes { databaseId author { login } body } } }
       }
     }
@@ -97,13 +98,13 @@ mutation($threadId: ID!) {
 ```
 
 ### Step 6: Re-request Review
-After all threads are handled, re-request review to trigger the next bot pass:
+After all threads are handled, trigger the next bot pass via an empty commit (most reliable for bots):
 
 ```bash
-gh pr edit $PR --add-reviewer gemini-code-assist[bot],coderabbitai[bot]
+git commit --allow-empty -m "chore: trigger re-review" && git push
 ```
 
-Or use the GitHub UI if reviewer re-request via CLI is not available for bots.
+Alternatively, use `gh pr edit --add-reviewer` for human reviewers or the GitHub UI for bots.
 
 ## Loop Limit
 Max 2 rounds of fix/rebut → re-review. After round 2, stop and summarize outstanding issues to user.
@@ -117,7 +118,8 @@ Stop and report to user when:
 ## Hard Rules
 - Every handled finding **must** have a reply in its thread before resolving
 - Never resolve a thread without replying — silent resolves are not allowed
-- Never post a top-level PR comment as a substitute for replying in the thread
+- Never open a brand-new top-level PR comment as a substitute for replying in a review thread
+- Review-level (no-line) findings: reply within the review summary thread, not as a new standalone comment
 
 ## Error Handling
 
@@ -136,7 +138,7 @@ If a bot comment references a file that doesn't exist locally:
 ### Comment Without Line Number
 Some bot comments may lack line context:
 - Use PR diff to locate relevant code: `gh pr diff $PR -- <path>`
-- If still unclear: treat as review-level comment — reply at PR level, do not resolve
+- If still unclear: reply within the review-level summary thread (not a new standalone comment); do not resolve
 
 ### Thread Resolution Fails
 If GraphQL mutation to resolve thread fails:
