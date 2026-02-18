@@ -668,8 +668,10 @@ func TestExecutorRunTaskWithContext(t *testing.T) {
 	})
 
 	t.Run("claudeBackendUnsetsNestedSessionEnvMarker", func(t *testing.T) {
-		t.Setenv("CLAUDECODE", "1")
-		setRuntimeSettingsForTest(map[string]string{"ANTHROPIC_API_KEY": "secret"})
+		setRuntimeSettingsForTest(map[string]string{
+			"CLAUDECODE":        "1",
+			"ANTHROPIC_API_KEY": "secret",
+		})
 		t.Cleanup(resetRuntimeSettingsForTest)
 
 		var rc *execFakeRunner
