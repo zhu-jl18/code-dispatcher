@@ -9,6 +9,13 @@ description: "Autonomous PR bot-review triage skill for Gemini, CodeRabbit, and 
 Autonomously handle all bot review findings on the current PR end-to-end:
 fetch → verify → fix or rebut → reply under thread → resolve thread.
 
+## Autonomy Directive
+This skill is a **fully autonomous pipeline**. Once invoked, execute Step 1 through Step 6 without pausing for user confirmation between steps.
+- Do NOT stop to ask the user "should I continue?" or "what do you think?" at any intermediate point.
+- Do NOT present findings to the user and wait for instructions — you decide fix or rebut based on code evidence.
+- Do NOT summarize partial progress and then stop — finish the entire workflow first, then give one final summary.
+- The ONLY situations where you may stop mid-workflow are listed in the Escalation section. Everything else: handle it yourself and keep going.
+
 ## Context Detection
 ```bash
 export GH_PAGER=cat
@@ -36,6 +43,42 @@ gh pr checks $PR
 
 Filter for bot authors: `gemini-code-assist`, `coderabbitai`.
 Skip only threads that are already resolved, or have an explicit maintainer reply that fully addresses the finding.
+
+#### CodeRabbit Behavior Model
+CodeRabbit is **slow**. You must internalize these facts:
+- A full review takes 2–5 minutes, sometimes longer for large PRs.
+- Every `git push` to the PR branch **re-triggers** a new review from scratch. The old review's line comments may become outdated or get replaced.
+- CodeRabbit has API rate limits. When hit, it posts a comment like "rate limit exceeded" or simply never completes its review.
+- A review in progress shows as `PENDING` state, or the bot posts a summary-only comment (e.g. "Walkthrough") with zero line-level findings yet.
+
+You cannot rush this. Plan your workflow around it.
+
+#### Pending vs Rate-Limited vs Done
+After fetching signals, classify the bot review state:
+
+**State A — Review complete (terminal):**
+Bot review state is `COMMENTED` / `APPROVED` / `CHANGES_REQUESTED` / `DISMISSED`, AND line-level comments exist (or the body is a full summary with zero line comments = no findings). → Proceed to Step 2.
+
+**State B — Review still running (pending):**
+Any of these signals:
+- Review `state` is `PENDING`
+- Review body is empty / placeholder / progress indicator only
+- Bot posted a summary ("Walkthrough") but has zero line-level comments and the review was created < 10 min ago
+- No bot review exists at all but the PR was pushed < 10 min ago
+
+Action: CodeRabbit typically finishes within ~5 minutes. Wait and re-check until the review lands. You decide the wait intervals and retry count — just don't give up too early (< 3 min) or wait forever (> 10 min total). If it's still pending after your patience runs out, exit with a one-line message and let the user re-run later.
+
+**State C — Rate limited:**
+Detection: bot posted a comment or review body containing "rate limit", "API rate", "quota exceeded", or similar. Or: bot review is absent and PR was pushed > 15 min ago (bot should have responded by now).
+
+Action: CodeRabbit is unusable. Fall back to Codex for review:
+```bash
+code-dispatcher --backend codex --task "Review the PR diff and identify real issues. Ignore style nitpicks."
+```
+Then continue the fix/rebut workflow using Codex's findings instead of CodeRabbit's. The goal is the same: fix real issues, rebut false positives.
+
+**State D — Legit zero findings:**
+Bot review is in terminal state, body contains a full summary, zero line-level comments. This means CodeRabbit found nothing. Print "CodeRabbit: no findings" and exit cleanly. Do NOT poll.
 
 Get unresolved thread IDs via GraphQL (needed for resolving):
 ```bash
@@ -98,24 +141,30 @@ mutation($threadId: ID!) {
 }' -F threadId="<thread_node_id>"
 ```
 
-### Step 6: Re-request Review
-After all threads are handled, request the next bot pass only when new commits were pushed in this round.
-Use an empty commit only when a new bot pass is required and no code change commit exists:
+### Step 6: Push and Wait for Re-review
+After all threads are handled, if you made code changes:
+1. Commit and push all fixes in one batch.
+2. **Pushing will re-trigger CodeRabbit.** You must wait for the new review before declaring done.
+3. Go back to Step 1 and re-enter the pending detection flow (State B). Wait for the new review to land.
+4. If new findings appear → process them (Step 2–5). If no new findings → done.
 
+If no code changes were made (all rebuttals), skip the push. No re-review needed.
+
+Use an empty commit only when a new bot pass is explicitly required and no code change commit exists:
 ```bash
 git commit --allow-empty -m "chore: trigger re-review" && git push
 ```
 
-Alternatively, use `gh pr edit --add-reviewer` for human reviewers or the GitHub UI for bots.
-
 ## Loop Limit
-Max 2 rounds of fix/rebut → re-review. After round 2, stop and summarize outstanding issues to user.
+Max 3 rounds of fix/rebut → wait for re-review → process new findings. After round 3, stop and give final summary of any remaining unresolved items.
 
 ## Escalation
-Stop and report to user when:
-- A finding is `critical`/`high priority` and fix requires substantial rework → consider calling `code-dispatcher --backend codex`
-- CI fails after fix and root cause is unclear
-- A thread cannot be resolved due to permissions
+These are the ONLY situations where you may stop mid-workflow and ask the user:
+- Current branch does not match PR head branch (do not auto-checkout)
+- Unrelated uncommitted changes exist (do not auto-stash)
+- A finding requires substantial architectural rework (> ~50 lines across multiple files)
+
+Everything else — including CI failures, permission errors, missing files — handle inline (skip, note, retry) and keep going. Report all skipped/failed items in the final summary.
 
 ## Hard Rules
 - Every handled finding **must** have a reply in its thread before resolving
@@ -126,25 +175,32 @@ Stop and report to user when:
 
 ## Error Handling
 
+### Pending / Empty Review State
+If you reach Step 2 with an empty finding list:
+- Re-read Step 1's state classification (A/B/C/D) — you likely skipped the pending check
+- Never conclude "nothing to do" without confirming State A or State D
+- `PENDING` is NOT a terminal state — go back and wait
+- If the bot seems dead (> 15 min, no response), classify as State C and fall back to codex
+
 ### Local Repo State Checks
 Before making changes:
 - Verify current branch matches PR head branch: `gh pr view $PR --json headRefName -q .headRefName`
-- If on wrong branch: stop and report to user — do not auto-checkout
-- If unrelated uncommitted changes exist: stop and report to user; do not auto-stash or auto-commit unknown work
+- If on wrong branch: **stop** (this is an allowed escalation point)
+- If unrelated uncommitted changes exist: **stop** (this is an allowed escalation point)
 
 ### Missing File in Finding
 If a bot comment references a file that doesn't exist locally:
 - Check PR diff: `gh pr diff $PR --name-only`
-- If file was deleted/renamed in PR: skip the finding, reply noting file no longer exists
-- If file never existed: rebut with file listing evidence
+- If file was deleted/renamed in PR: skip the finding, reply noting file no longer exists, **then continue**
+- If file never existed: rebut with file listing evidence, **then continue**
 
 ### Comment Without Line Number
 Some bot comments may lack line context:
 - Use PR diff to locate relevant code: `gh pr diff $PR -- <path>`
-- If still unclear: reply in-thread when possible; otherwise post one scoped PR comment and do not resolve missing/unclear threads blindly
+- If still unclear: reply in-thread when possible; otherwise post one scoped PR comment. **Then continue** — do not resolve unclear threads but do not stop the workflow either.
 
 ### Thread Resolution Fails
 If GraphQL mutation to resolve thread fails:
 - Check if thread was already resolved by someone else
-- If permission issue: skip resolution and note in summary
-- If ID invalid: re-fetch thread IDs and retry
+- If permission issue: skip resolution, note in final summary, **continue**
+- If ID invalid: re-fetch thread IDs and retry once. If still fails, skip and **continue**
