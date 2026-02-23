@@ -26,23 +26,30 @@ PR=$(gh pr view --json number -q .number)
 ## Workflow
 
 ### Step 1: Fetch Review Signals
-Collect both review-level summaries and line-level comment threads:
+Collect **both** signal sources — you must check both every time, including on re-review loops:
 
+**Source 1: Review bodies** (findings may live ONLY here, with no line-level comment)
 ```bash
-# Review summaries
 gh pr view $PR --json reviews \
   --jq '[.reviews[] | {author: .author.login, state: .state, body: .body}]'
+```
+CodeRabbit often embeds findings inside the review body as `<details>` / `<summary>` HTML blocks (e.g. "🧹 Nitpick comments", "⚠️ Potential issues"). Parse these blocks — each one is a distinct finding that needs fix or rebut, even if there is no corresponding line-level comment thread.
 
-# Line-level comment threads (with IDs for reply/resolve)
+**Source 2: Line-level comment threads** (with IDs for reply/resolve)
+```bash
 gh api repos/$REPO/pulls/$PR/comments --paginate \
   --jq '[.[] | {id: .id, author: .user.login, path: .path, line: (.line // .original_line), body: .body, in_reply_to: .in_reply_to_id}]'
+```
 
-# CI status
+**Source 3: CI status**
+```bash
 gh pr checks $PR
 ```
 
 Filter for bot authors: `gemini-code-assist`, `coderabbitai`.
 Skip only threads that are already resolved, or have an explicit maintainer reply that fully addresses the finding.
+
+**Findings = union of Source 1 + Source 2.** A finding from Source 1 that has no matching Source 2 thread is still a real finding — handle it via a scoped PR comment reply (Step 4 fallback).
 
 #### Wait for ALL Bots Before Acting
 Multiple bots may review the same PR (e.g. CodeRabbit + Gemini). Do NOT start fixing/rebutting until **all** expected bot reviews have landed.
@@ -84,7 +91,12 @@ code-dispatcher --backend codex --task "Review the PR diff and identify real iss
 Then continue the fix/rebut workflow using Codex's findings instead of CodeRabbit's. The goal is the same: fix real issues, rebut false positives.
 
 **State D — Legit zero findings:**
-Bot review is in terminal state, body contains a full summary, zero line-level comments. This means CodeRabbit found nothing. Print "CodeRabbit: no findings" and exit cleanly. Do NOT poll.
+Bot review is in terminal state AND:
+- Zero line-level comments, AND
+- Review body contains no `<details>` / nitpick / issue blocks (just a walkthrough summary or "no issues found")
+
+Only then: print "CodeRabbit: no findings" and exit cleanly. Do NOT poll.
+**If the review body contains `<details>` blocks with findings but zero line-level comments, this is NOT State D — it's State A with body-only findings. Process them.**
 
 Get unresolved thread IDs via GraphQL (needed for resolving):
 ```bash
@@ -154,8 +166,8 @@ You should only reach this step after ALL findings from ALL bots have been proce
 
 If you made code changes:
 1. Commit and push all fixes in **one single batch**. Never push per-finding — every push re-triggers CodeRabbit and wastes 5+ min.
-2. After push, go back to Step 1. Wait for all bots to re-review (same pending detection as before).
-3. If new findings appear → process them (Step 2–5). If no new findings → done.
+2. After push, go back to Step 1. **Re-fetch BOTH review bodies AND line-level comments from scratch.** Compare the new review body against the previous round's body to detect new findings — do not assume "same review count = no changes".
+3. If new findings appear (in either source) → process them (Step 2–5). If no new findings → done.
 
 If no code changes were made (all rebuttals), skip the push. No re-review needed.
 

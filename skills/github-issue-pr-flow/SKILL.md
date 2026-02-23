@@ -5,6 +5,13 @@ description: "Autonomous GitHub issue-to-PR delivery workflow with review-signal
 
 # GitHub Issue → PR Delivery Flow
 
+## Autonomy Directive
+This skill is a **fully autonomous pipeline**. Once invoked, execute all phases (0–6) for ALL issues without pausing for user confirmation between phases or between issues.
+- Do NOT stop after completing one issue to ask "should I continue to the next one?" — proceed to the next issue immediately.
+- Do NOT present intermediate results and wait for instructions.
+- Do NOT summarize partial progress and then stop — finish all issues, then give one final summary.
+- The ONLY situations where you may stop are listed in the Escalation Policy.
+
 ## Operating Principles
 - Keep full autonomy for decomposition, branch planning, triage, and merge execution.
 - Treat external review tools as advisory signals; host agent is final decision-maker.
@@ -47,10 +54,12 @@ Execute phases in order with no user confirmation gates unless escalation rules 
 - If CodeRabbit reports rate limit exhaustion, trigger fallback review flow in `references/review-playbook.md` and continue without waiting for CodeRabbit recovery.
 
 ### Phase 5: Triage Review Findings
+- Collect findings from **both** review bodies (parse `<details>` / nitpick / issue blocks in `reviews[].body`) AND line-level comment threads. Findings = union of both sources.
 - Decide each finding independently: fix, rebut with evidence, or align with repo convention.
-- Reply under each review comment and resolve each thread after handling.
-- Re-run CI after each push; keep looping until stable or escalation is required.
-- Limit autonomous rebut/fix loops to 2 rounds, then escalate if blocking findings remain.
+- Reply under each review comment and resolve each thread after handling. For body-only findings with no line-level thread, post a scoped PR comment.
+- Accumulate all code fixes locally before pushing — a premature push re-triggers CodeRabbit and wastes minutes.
+- After push, re-fetch both review bodies and line-level comments to detect new findings. Do not only check line-level comments.
+- Limit autonomous rebut/fix loops to 3 rounds, then escalate if blocking findings remain.
 
 ### Phase 6: Squash Merge and Closure
 - Merge using squash and delete remote branch.
