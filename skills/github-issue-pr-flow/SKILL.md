@@ -12,6 +12,9 @@ This skill is a **fully autonomous pipeline**. Once invoked, execute all phases 
 - Do NOT summarize partial progress and then stop — finish all issues, then give one final summary.
 - The ONLY situations where you may stop are listed in the Escalation Policy.
 
+## Note
+When creating issues or PRs with long body content, prefer writing the body to a temp file and using `--body-file` (e.g. `gh issue create --body-file /tmp/gh-body.md`) instead of passing it inline via `--body`. This avoids shell escaping issues and potential model stalling. Clean up the temp file after the command succeeds.
+
 ## Operating Principles
 - Keep full autonomy for decomposition, branch planning, triage, and merge execution.
 - Treat external review tools as advisory signals; host agent is final decision-maker.
@@ -32,11 +35,16 @@ Execute phases in order with no user confirmation gates unless escalation rules 
 - Fetch and fast-forward base before creating or updating working branches.
 - If `git pull --ff-only` fails, stop and escalate to user. Never hard reset or force push automatically.
 
-### Phase 1: Decompose Into Issues
+### Phase 1: Decompose Into Issues (Optional)
+Decide issue structure based on task scope and complexity:
+- Simple/small tasks: skip issue creation entirely, go straight to Phase 2.
+- Medium tasks: create a single issue, no epic needed.
+- Large/multi-deliverable tasks: decompose into multiple issues; create an epic only when multiple child issues need a parent umbrella.
+
+When decomposing:
 - Decompose by deliverables, not by file counts.
 - Prefer one issue = one user-verifiable outcome with acceptance criteria and test evidence.
 - Split work when merge/review risk is high or when tasks can land independently.
-- Create epic only when multiple child issues need a parent umbrella.
 
 ### Phase 2: Implement With Branch Discipline
 - Create branch names as `feat/issue-<number>-<slug>` or `fix/issue-<number>-<slug>`.

@@ -46,6 +46,9 @@ python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
 - 不会自动复制 `skills/` 到你的目标 CLI root 或 project scope
 - 需要按你的目标 CLI 自行手动复制：
   - 从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/wave`、`skills/code-dispatcher` 或 `skills/code-dispatcher-flash`、`skills/code-council`、`skills/github-issue-pr-flow`、`skills/pr-review-reply`）
+- 不会自动注入 `memory/CLAUDE-add.md` 到你的用户级配置
+  - 该文件包含 `/dev` 工作流约定（Claude Code 负责规划和验证，编辑和测试必须通过 code-dispatcher skill 执行）
+  - 需要手动将其内容追加到你自己的 `~/.claude/CLAUDE.md`（Claude Code）或 `AGENTS.md`（Codex 等）中
 
 提示：
 - 在 WSL 里运行 `install.py` 会安装 Linux 二进制；在 macOS（Apple Silicon）里运行会安装 Darwin arm64 二进制；在 Windows 里运行会安装 Windows `.exe`。
