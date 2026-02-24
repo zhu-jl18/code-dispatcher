@@ -13,6 +13,7 @@ What you get:
 - `code-council` skill: multi-perspective parallel code review (2–3 AI reviewers in parallel + host agent final pass)
 - `github-issue-pr-flow` skill: autonomous issue-to-PR delivery (decompose → implement → open PR → handle reviews → squash merge)
 - `pr-review-reply` skill: autonomous bot-review triage on PRs (Gemini / CodeRabbit etc.) — verify → fix or rebut → reply in thread → resolve
+- `cc-cx-review-loop` extension: implement → auto-review (code-dispatcher runs Diff + Holistic reviewers in parallel) → address feedback → done
 
 ## Backend Positioning (Recommended)
 
@@ -33,18 +34,18 @@ Optional:
 ```bash
 python3 install.py --install-dir ~/.code-dispatcher --force
 python3 install.py --skip-dispatcher
-python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
+python3 install.py --repo zhu-jl18/code-dispatcher-toolkit --release-tag latest
 ```
 
 Installer outputs:
 - `~/.code-dispatcher/.env` (single runtime config source)
-- `~/.code-dispatcher/prompts/*-prompt.md` (per-backend placeholders)
+- `~/.code-dispatcher/prompts/*-prompt.md` (per-backend default prompt templates; clear to disable injection)
 - `~/.code-dispatcher/bin/code-dispatcher` (or `.exe` on Windows)
 
 Not automated (manual by design):
 - No auto-copy of `skills/` into your target CLI root/project scope
 - Manually copy what you need based on your target CLI:
-  - Pick from `skills/*` (for example: `skills/dev`, `skills/wave`, `skills/code-dispatcher` or `skills/code-dispatcher-flash`, `skills/code-council`, `skills/github-issue-pr-flow`, `skills/pr-review-reply`)
+  - Pick from `skills/*` (for example: `skills/dev`, `skills/wave`, `skills/code-dispatcher` or `skills/code-dispatcher-flash`, `skills/code-council`, `skills/github-issue-pr-flow`, `skills/pr-review-reply`, `skills/cc-cx-review-loop`)
 
 Notes:
 - Running `install.py` under WSL installs the Linux binary; on macOS (Apple Silicon) it installs the Darwin arm64 binary; on Windows it installs the `.exe`.

@@ -3,7 +3,7 @@
 
 Installs:
 - code-dispatcher binary (downloaded from GitHub Release assets)
-- per-backend prompt placeholders under ~/.code-dispatcher/prompts
+- per-backend default prompt templates under ~/.code-dispatcher/prompts
 - ~/.code-dispatcher/.env template for runtime configuration
 
 Targets:
@@ -26,7 +26,7 @@ from pathlib import Path
 
 
 DEFAULT_INSTALL_DIR = "~/.code-dispatcher"
-DEFAULT_RELEASE_REPO = "zhu-jl18/code-dispatcher"
+DEFAULT_RELEASE_REPO = "zhu-jl18/code-dispatcher-toolkit"
 DEFAULT_RELEASE_TAG = "latest"
 HTTP_TIMEOUT_SEC = 30
 
@@ -290,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"Installed to: {install_dir}")
     print(f"- env:      {install_dir / '.env'}")
-    print(f"- prompts:  {install_dir / 'prompts'} (*-prompt.md placeholders)")
+    print(f"- prompts:  {install_dir / 'prompts'} (*-prompt.md default templates)")
     if router_path is not None:
         print(f"- binary:   {router_path} (downloaded from GitHub release {args.repo}@{args.release_tag})")
 

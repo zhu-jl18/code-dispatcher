@@ -26,6 +26,9 @@ jobs:
           go-version-file: code-dispatcher/go.mod
           cache: false
 
+      - name: Run tests and vet
+        run: cd code-dispatcher && go vet ./... && go test -race ./...
+
       - name: Build cross-platform binaries
         run: bash scripts/build-dist.sh
 
