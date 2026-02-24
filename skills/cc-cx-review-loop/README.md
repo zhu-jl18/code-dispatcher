@@ -27,7 +27,7 @@ chmod +x <your-project>/.claude/hooks/review-loop-stop.sh
 然后把 `settings.json` 中的 `hooks.Stop` 合并到你项目的 `.claude/settings.json`（团队共享）或 `.claude/settings.local.json`（个人本地）。
 
 安装后项目结构：
-```
+```text
 <your-project>/.claude/
 ├── commands/
 │   ├── review-loop.md
@@ -46,12 +46,12 @@ Windows：Claude Code 通常依赖 Git Bash，请确保 Git Bash 的 PATH 也包
 ## 使用
 
 启动 loop：
-```
+```text
 /review-loop Implement feature X with tests
 ```
 
 取消：
-```
+```text
 /cancel-review
 ```
 
