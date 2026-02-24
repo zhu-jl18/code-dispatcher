@@ -1,10 +1,10 @@
-# code-dispatcher
+# code-dispatcher-toolkit
 
 <p align="center">
   <a href="README.md">中文</a> | <strong>English</strong>
 </p>
 
-> Receive task → select backend → build args → dispatch execution → collect results. That's dispatch.
+> A multi-backend AI coding toolkit built around the `code-dispatcher` CLI: executor + orchestration skills + extension templates.
 
 What you get:
 - `dev` skill: requirements clarification → plan → select backend → parallel execution (DAG scheduling) → verification

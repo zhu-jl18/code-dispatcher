@@ -1,10 +1,10 @@
-# code-dispatcher
+# code-dispatcher-toolkit
 
 <p align="center">
   <strong>中文</strong> | <a href="README.en.md">English</a>
 </p>
 
-> 接收任务 → 选后端 → 构建参数 → 分发执行 → 收集结果。这就是 dispatch。
+> 基于 `code-dispatcher` CLI 构建的多后端 AI 编码工具集：执行器 + 编排 skill + 扩展模板。
 
 你会得到什么：
 - `dev` skill：需求澄清 → 计划 → 选择后端 → 并行执行（DAG 调度） → 验证
