@@ -1,5 +1,7 @@
 # Issue Templates
 
+Both epic and sub-issue layers are optional. Use the structure that matches task scope: skip issues for trivial tasks, use a single issue for medium tasks, and add an epic wrapper only for multi-issue deliveries.
+
 ## Epic Template
 ```markdown
 # Epic: <title>

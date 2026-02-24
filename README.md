@@ -1,9 +1,11 @@
-# code-dispatcher
+# code-dispatcher-toolkit
 
 <p align="center">
   <strong>中文</strong> | <a href="README.en.md">English</a>
 </p>
 
+> 基于 `code-dispatcher` CLI 构建的多后端 AI 编码工具集：执行器 + 编排 skill + 扩展模板。
+>
 > 接收任务 → 选后端 → 构建参数 → 分发执行 → 收集结果。这就是 dispatch。
 
 你会得到什么：
@@ -13,6 +15,7 @@
 - `code-council` skill：多视角并行代码评审（2–3 个 AI reviewer 并行 + host agent 终审）
 - `github-issue-pr-flow` skill：自主 Issue → PR 交付流程（分解 Issue → 实现 → 开 PR → 处理 review → squash merge）
 - `pr-review-reply` skill：自主处理 PR 上的 bot review（Gemini / CodeRabbit 等）——验证 → 修复或反驳 → 回复线程 → resolve
+- `cc-cx-review-loop` 扩展：实现 → 自动 review（code-dispatcher 并行跑 Diff + Holistic 两个独立 reviewer） → 处理反馈 → 完成
 
 ## 后端定位（仅推荐，可自由指定）
 
@@ -34,18 +37,21 @@ python3 install.py
 ```bash
 python3 install.py --install-dir ~/.code-dispatcher --force
 python3 install.py --skip-dispatcher
-python3 install.py --repo zhu-jl18/code-dispatcher --release-tag latest
+python3 install.py --repo zhu-jl18/code-dispatcher-toolkit --release-tag latest
 ```
 
 安装器会做这些事：
 - `~/.code-dispatcher/.env`：运行时唯一配置源
-- `~/.code-dispatcher/prompts/*-prompt.md`：每个后端一个空占位文件（用于 prompt 注入）
+- `~/.code-dispatcher/prompts/*-prompt.md`：每个后端的默认 prompt 模板（可编辑，置空则禁用注入）
 - `~/.code-dispatcher/bin/code-dispatcher`（Windows 上是 `.exe`）
 
 不会自动做的事（必须手动）：
 - 不会自动复制 `skills/` 到你的目标 CLI root 或 project scope
 - 需要按你的目标 CLI 自行手动复制：
-  - 从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/wave`、`skills/code-dispatcher` 或 `skills/code-dispatcher-flash`、`skills/code-council`、`skills/github-issue-pr-flow`、`skills/pr-review-reply`）
+  - 从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/wave`、`skills/code-dispatcher` 或 `skills/code-dispatcher-flash`、`skills/code-council`、`skills/github-issue-pr-flow`、`skills/pr-review-reply`、`skills/cc-cx-review-loop`）
+- 不会自动注入 `memory/CLAUDE-add.md` 到你的用户级配置
+  - 该文件包含 `/dev` 工作流约定（Claude Code 负责规划和验证，编辑和测试必须通过 code-dispatcher skill 执行）
+  - 需要手动将其内容追加到你自己的 `~/.claude/CLAUDE.md`（Claude Code）或 `AGENTS.md`（Codex 等）中
 
 提示：
 - 在 WSL 里运行 `install.py` 会安装 Linux 二进制；在 macOS（Apple Silicon）里运行会安装 Darwin arm64 二进制；在 Windows 里运行会安装 Windows `.exe`。

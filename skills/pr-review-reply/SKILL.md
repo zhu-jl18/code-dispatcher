@@ -86,7 +86,7 @@ Detection: bot posted a comment or review body containing "rate limit", "API rat
 
 Action: CodeRabbit is unusable. Fall back to Codex for review:
 ```bash
-code-dispatcher --backend codex --task "Review the PR diff and identify real issues. Ignore style nitpicks."
+code-dispatcher --backend codex "Review the PR diff and identify real issues. Ignore style nitpicks."
 ```
 Then continue the fix/rebut workflow using Codex's findings instead of CodeRabbit's. The goal is the same: fix real issues, rebut false positives.
 
