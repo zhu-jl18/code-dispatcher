@@ -16,6 +16,7 @@
 - `github-issue-pr-flow` skill：自主 Issue → PR 交付流程（分解 Issue → 实现 → 开 PR → 处理 review → squash merge）
 - `pr-review-reply` skill：自主处理 PR 上的 bot review（Gemini / CodeRabbit 等）——验证 → 修复或反驳 → 回复线程 → resolve
 - `cc-cx-review-loop` 扩展：实现 → 自动 review（code-dispatcher 并行跑 Diff + Holistic 两个独立 reviewer） → 处理反馈 → 完成
+- `harness` 扩展：Claude Code 长任务 harness（状态持久化、失败恢复、依赖调度、Stop/SessionStart hooks）
 
 ## 后端定位（仅推荐，可自由指定）
 
@@ -48,7 +49,7 @@ python3 install.py --repo zhu-jl18/code-dispatcher-toolkit --release-tag latest
 不会自动做的事（必须手动）：
 - 不会自动复制 `skills/` 到你的目标 CLI root 或 project scope
 - 需要按你的目标 CLI 自行手动复制：
-  - 从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/wave`、`skills/code-dispatcher`、`skills/code-council`、`skills/github-issue-pr-flow`、`skills/pr-review-reply`、`skills/cc-cx-review-loop`）
+  - 从本仓库 `skills/*` 里挑需要的（例如 `skills/dev`、`skills/wave`、`skills/code-dispatcher`、`skills/code-council`、`skills/github-issue-pr-flow`、`skills/pr-review-reply`、`skills/cc-cx-review-loop`、`skills/harness`）
 - 不会自动注入 `memory/CLAUDE-add.md` 到你的用户级配置
   - 该文件包含 `/dev` 工作流约定（Claude Code 负责规划和验证，编辑和测试必须通过 code-dispatcher skill 执行）
   - 需要手动将其内容追加到你自己的 `~/.claude/CLAUDE.md`（Claude Code）或 `AGENTS.md`（Codex 等）中
