@@ -2,7 +2,7 @@
 
 <h1>CODE-DISPATCHER TOOLKIT</h1>
 <p><strong>Multi-Backend AI Coding Toolkit</strong></p>
-<p>Dispatch tasks across Codex, Claude, and Gemini with<br>reusable Skills, Bundles, and workflow tooling.</p>
+<p>Dispatch tasks across Codex, Claude, and Gemini with<br>reusable Skills and workflow tooling.</p>
 
 <p>
   <strong>中文</strong> | <a href="README.en.md">English</a>
@@ -20,7 +20,7 @@
 
 </div>
 
-基于 `code-dispatcher` CLI 构建的多后端 AI 编码工具集：执行器 + Skills + Bundles。
+基于 `code-dispatcher` CLI 构建的多后端 AI 编码工具集：执行器 + Skills。
 
 ## 为什么叫 Dispatcher
 
@@ -65,17 +65,17 @@
   <th width="60">依赖</th>
 </tr>
 <tr>
-  <td><code>code&#8209;dispatcher</code></td>
+  <td><a href="docs/code-dispatcher.md"><code>code&#8209;dispatcher</code></a></td>
   <td>执行器使用说明；统一 3 个后端 <code>codex/claude/gemini</code>；核心机制 <code>--parallel</code> 和 <code>--resume</code></td>
   <td>必需</td>
 </tr>
 <tr>
-  <td><code>dev</code></td>
+  <td><a href="docs/dev.md"><code>dev</code></a></td>
   <td>需求澄清 → 计划 → 选择后端 → 并行执行（DAG 调度） → 验证</td>
   <td>必需</td>
 </tr>
 <tr>
-  <td><code>code&#8209;council</code></td>
+  <td><a href="docs/code-council.md"><code>code&#8209;council</code></a></td>
   <td>多视角并行代码评审（2–3 个 AI reviewer 并行 + host agent 终审）</td>
   <td>必需</td>
 </tr>
@@ -145,7 +145,7 @@ echo 'set -gx PATH "$HOME/.code-dispatcher/bin" $PATH' >> ~/.config/fish/config.
 
 ### Step 3: 挑选 Skills
 
-接下来你可以参照 `docs/skills-and-bundles.md` 了解具体用途，挑选你需要的功能模块进行安装：
+参考各技能的独立文档了解具体用途，然后挑选你需要的功能模块：
 
 **Skills**：Skill 是跨 agent 通用的功能模块，核心是 `SKILL.md` 定义文件，部分还包含 `references/` 参考文档。安装时将对应的 skill 目录复制到目标 agent 的 skills 目录，以 Claude 为例：
   - 全局：`~/.claude/skills/<skill-name>/`

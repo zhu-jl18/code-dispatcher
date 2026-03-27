@@ -2,7 +2,7 @@
 
 <h1>CODE-DISPATCHER TOOLKIT</h1>
 <p><strong>Multi-Backend AI Coding Toolkit</strong></p>
-<p>Dispatch tasks across Codex, Claude, and Gemini with<br>reusable Skills, Bundles, and workflow tooling.</p>
+<p>Dispatch tasks across Codex, Claude, and Gemini with<br>reusable Skills and workflow tooling.</p>
 
 <p>
   <a href="README.md">中文</a> | <strong>English</strong>
@@ -20,7 +20,7 @@
 
 </div>
 
-A multi-backend AI coding toolkit built around the `code-dispatcher` CLI: executor + Skills + Bundles.
+A multi-backend AI coding toolkit built around the `code-dispatcher` CLI: executor + Skills.
 
 ## Why Dispatcher
 
@@ -65,17 +65,17 @@ Note: "Dependency" indicates whether the skill relies on the code-dispatcher CLI
   <th width="80">Dependency</th>
 </tr>
 <tr>
-  <td><code>code&#8209;dispatcher</code></td>
+  <td><a href="docs/code-dispatcher.md"><code>code&#8209;dispatcher</code></a></td>
   <td>Executor usage guide; unified 3 backends <code>codex/claude/gemini</code>; core mechanisms <code>--parallel</code> and <code>--resume</code></td>
   <td>Required</td>
 </tr>
 <tr>
-  <td><code>dev</code></td>
+  <td><a href="docs/dev.md"><code>dev</code></a></td>
   <td>Requirements clarification → plan → select backend → parallel execution (DAG scheduling) → verification</td>
   <td>Required</td>
 </tr>
 <tr>
-  <td><code>code&#8209;council</code></td>
+  <td><a href="docs/code-council.md"><code>code&#8209;council</code></a></td>
   <td>Multi-perspective parallel code review (2–3 AI reviewers in parallel + host agent final pass)</td>
   <td>Required</td>
 </tr>
@@ -145,7 +145,7 @@ Copy the `code-dispatcher` skill to the appropriate directory based on your targ
 
 ### Step 3: Select Skills
 
-Refer to `docs/skills-and-bundles.en.md` for specific purposes, then select the functional modules you need:
+Refer to individual skill docs for specific purposes, then select the functional modules you need:
 
 **Skills**: Skills are cross-agent functional modules. The core is the `SKILL.md` definition file, and some also include `references/` documentation. When installing, copy the corresponding skill directory to the target agent's skills directory. Taking Claude as an example:
 - Global: `~/.claude/skills/<skill-name>/`

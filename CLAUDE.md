@@ -1,7 +1,7 @@
 # code-dispatcher Project Instructions
 
 ## Project Summary
-code-dispatcher is a multi-backend AI coding toolkit: a Go CLI that dispatches tasks to `codex`/`claude`/`gemini` backends, paired with reusable Skills and Bundles for structured workflows such as planning, parallel execution, iterative waves, multi-reviewer code review, bot-review triage, and long-running task orchestration.
+code-dispatcher is a multi-backend AI coding toolkit: a Go CLI that dispatches tasks to `codex`/`claude`/`gemini` backends, paired with reusable Skills for structured workflows such as planning, parallel execution, iterative waves, multi-reviewer code review, bot-review triage, and long-running task orchestration.
 
 ## Tech Stack
 - Go: main dispatcher program
@@ -12,10 +12,10 @@ code-dispatcher is a multi-backend AI coding toolkit: a Go CLI that dispatches t
 - `code-dispatcher/`: Go source (main package and backend dispatch logic)
 - `skills/`: reusable modules
 - `deprecated/`: archived skills and docs kept only for reference
-- `bundles/`: packaged Claude Code assets such as `commands/`, `hooks/`, `settings`, and supporting docs
-- Skills: `dev`, `wave`, `code-dispatcher`, `code-council`, `pr-review-reply`
-- Bundles: `codex-review-loop`, `harness`
-- `docs/`: documentation (`runtime-config.md`)
+- Skills: `dev`, `code-dispatcher`, `code-council`, `pr-review-reply`
+- `docs/`: documentation (`runtime-config.md`, `runtime-config.en.md`, `code-dispatcher.md`, `dev.md`, `code-council.md`, `pr-review-reply.md`)
+- `prompts/`: per-backend default prompt templates (`claude-prompt.md`, `codex-prompt.md`, `gemini-prompt.md`)
+- `templates/`: scaffold templates (`dev-skill-constraint.md`, `runtime-config.env`)
 - `scripts/`: build scripts (`build-dist.sh`)
 - `install.py` / `uninstall.py`: installer and uninstaller
 - `dist/`: build outputs (gitignored)
