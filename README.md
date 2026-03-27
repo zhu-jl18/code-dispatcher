@@ -75,11 +75,6 @@
   <td>必需</td>
 </tr>
 <tr>
-  <td><code>wave</code></td>
-  <td>迭代式波次并行执行（host agent 每波动态拆任务 → 并行派单 → 看结果 → 下一波）</td>
-  <td>必需</td>
-</tr>
-<tr>
   <td><code>code&#8209;council</code></td>
   <td>多视角并行代码评审（2–3 个 AI reviewer 并行 + host agent 终审）</td>
   <td>必需</td>
@@ -105,14 +100,9 @@
   <th width="60">依赖</th>
 </tr>
 <tr>
-  <td><code>codex&#8209;review&#8209;loop</code></td>
-  <td>Claude Code 的 review loop 套件；由 <code>commands/</code>、<code>hooks/</code>、<code>settings.json</code> 组成，Stop 时触发 Codex review</td>
-  <td>否</td>
-</tr>
-<tr>
-  <td><code>harness</code></td>
-  <td>Claude Code 的长任务套件；提供状态持久化、恢复、依赖调度和 SessionStart/Stop hooks</td>
-  <td>否</td>
+  <td>无</td>
+  <td>该仓库不再直接分发 bundle；请改用 fish-claude 的 pack：</td>
+  <td><a href="../fish-claude/packs/harness">harness</a>, <a href="../fish-claude/packs/codex-review-loop">codex-review-loop</a></td>
 </tr>
 </table>
 

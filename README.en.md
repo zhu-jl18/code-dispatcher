@@ -75,11 +75,6 @@ Note: "Dependency" indicates whether the skill relies on the code-dispatcher CLI
   <td>Required</td>
 </tr>
 <tr>
-  <td><code>wave</code></td>
-  <td>Iterative wave-based parallel execution (host agent decomposes each wave → parallel dispatch → review results → next wave)</td>
-  <td>Required</td>
-</tr>
-<tr>
   <td><code>code&#8209;council</code></td>
   <td>Multi-perspective parallel code review (2–3 AI reviewers in parallel + host agent final pass)</td>
   <td>Required</td>
@@ -105,14 +100,9 @@ Note: "Dependency" indicates whether the skill relies on the code-dispatcher CLI
   <th width="80">Dependency</th>
 </tr>
 <tr>
-  <td><code>codex&#8209;review&#8209;loop</code></td>
-  <td>Claude Code review loop bundle; composed of <code>commands/</code>, <code>hooks/</code>, <code>settings.json</code>; triggers Codex review on Stop</td>
-  <td>No</td>
-</tr>
-<tr>
-  <td><code>harness</code></td>
-  <td>Claude Code long-running task bundle; provides state persistence, recovery, dependency scheduling, and SessionStart/Stop hooks</td>
-  <td>No</td>
+  <td>None in this repo</td>
+  <td>Bundles moved to fish-claude packs:</td>
+  <td><a href="../fish-claude/packs/harness">harness</a>, <a href="../fish-claude/packs/codex-review-loop">codex-review-loop</a></td>
 </tr>
 </table>
 
