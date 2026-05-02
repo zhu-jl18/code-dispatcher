@@ -17,11 +17,11 @@ const (
 	defaultWorkdir        = "."
 	defaultTimeout        = 7200 // seconds (2 hours)
 	defaultCoverageTarget = 90.0
-	logLineLimit     = 1000
+	logLineLimit          = 1000
 	stdinSpecialChars     = "\n\\\"'`$"
 	stderrCaptureLimit    = 4 * 1024
 	defaultBackendName    = "codex"
-	defaultBackendCommand   = "codex"
+	defaultBackendCommand = "codex"
 
 	// stdout close reasons
 	stdoutCloseReasonWait  = "wait-done"
@@ -32,13 +32,13 @@ const (
 
 // Test hooks for dependency injection
 var (
-	stdinReader  io.Reader = os.Stdin
-	isTerminalFn           = defaultIsTerminal
+	stdinReader    io.Reader = os.Stdin
+	isTerminalFn             = defaultIsTerminal
 	backendCommand           = defaultBackendCommand
-	cleanupHook  func()
-	loggerPtr    atomic.Pointer[Logger]
+	cleanupHook    func()
+	loggerPtr      atomic.Pointer[Logger]
 
-	buildArgsFn   = buildCodexArgs
+	buildArgsFn        = buildCodexArgs
 	selectBackendFn    = selectBackend
 	commandContext     = exec.CommandContext
 	cleanupLogsFn      = cleanupOldLogs
@@ -268,20 +268,14 @@ func run() (exitCode int) {
 					continue
 				}
 
-				lines := strings.Split(results[i].Message, "\n")
-
-				// Coverage extraction
-				results[i].Coverage = extractCoverageFromLines(lines)
-				results[i].CoverageNum = extractCoverageNum(results[i].Coverage)
-
-				// Files changed
-				results[i].FilesChanged = extractFilesChangedFromLines(lines)
-
-				// Test results
-				results[i].TestsPassed, results[i].TestsFailed = extractTestResultsFromLines(lines)
-
-				// Key output summary
-				results[i].KeyOutput = extractKeyOutputFromLines(lines, 150)
+				if report, found := extractStructuredReport(results[i].Message, 150); found {
+					results[i].Coverage = report.Coverage
+					results[i].CoverageNum = extractCoverageNum(report.Coverage)
+					results[i].FilesChanged = report.FilesChanged
+					results[i].TestsPassed = report.TestsPassed
+					results[i].TestsFailed = report.TestsFailed
+					results[i].KeyOutput = report.KeyOutput
+				}
 			}
 
 			// Default: summary mode (context-efficient)

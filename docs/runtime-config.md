@@ -65,6 +65,8 @@
 
 支持的后端：`codex`、`claude`、`gemini`。
 
+安装器不会覆盖已存在的提示词文件，除非使用 `python3 install.py --force`。升级默认 prompt contract 后，已有安装需要手动同步这些文件或使用 `--force` 重新安装。
+
 ## 5）超时分层（重要）
 
 通常存在两层超时机制：

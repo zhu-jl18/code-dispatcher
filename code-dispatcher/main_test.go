@@ -3293,6 +3293,78 @@ test`
 	}
 }
 
+func TestParallelSummaryPrefersStructuredReport(t *testing.T) {
+	defer resetTestHooks()
+	cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }
+
+	oldArgs := os.Args
+	t.Cleanup(func() { os.Args = oldArgs })
+	os.Args = []string{"code-dispatcher", "--parallel", "--backend", "codex"}
+
+	stdinReader = strings.NewReader(`---TASK---
+id: T1
+---CONTENT---
+noop`)
+	t.Cleanup(func() { stdinReader = os.Stdin })
+
+	orig := runParallelTaskFn
+	runParallelTaskFn = func(task TaskSpec, timeout int) TaskResult {
+		return TaskResult{TaskID: task.ID, ExitCode: 0, Message: "noise fallback.go 12%\n---CODE-DISPATCHER-REPORT---\nCoverage: 92%\nFiles: structured.go\nTests: 7 passed, 0 failed\nSummary: Structured report used\n---END-CODE-DISPATCHER-REPORT---"}
+	}
+	t.Cleanup(func() { runParallelTaskFn = orig })
+
+	out := captureOutput(t, func() {
+		if code := run(); code != 0 {
+			t.Fatalf("run exit = %d, want 0", code)
+		}
+	})
+
+	for _, want := range []string{"### T1 ✓ 92%", "Did: Structured report used", "Files: structured.go", "Tests: 7 passed"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("output missing %q, got %q", want, out)
+		}
+	}
+	if strings.Contains(out, "fallback.go") {
+		t.Fatalf("summary used fallback extraction despite structured report: %q", out)
+	}
+}
+
+func TestParallelSummaryDoesNotGuessWithoutStructuredReport(t *testing.T) {
+	defer resetTestHooks()
+	cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }
+
+	oldArgs := os.Args
+	t.Cleanup(func() { os.Args = oldArgs })
+	os.Args = []string{"code-dispatcher", "--parallel", "--backend", "codex"}
+
+	stdinReader = strings.NewReader(`---TASK---
+id: T1
+---CONTENT---
+noop`)
+	t.Cleanup(func() { stdinReader = os.Stdin })
+
+	orig := runParallelTaskFn
+	runParallelTaskFn = func(task TaskSpec, timeout int) TaskResult {
+		return TaskResult{TaskID: task.ID, ExitCode: 0, Message: "Summary: Should not be extracted\nCoverage: 88%\nFiles: guessed.go\nTests: 4 passed, 0 failed"}
+	}
+	t.Cleanup(func() { runParallelTaskFn = orig })
+
+	out := captureOutput(t, func() {
+		if code := run(); code != 0 {
+			t.Fatalf("run exit = %d, want 0", code)
+		}
+	})
+
+	for _, unwanted := range []string{"Did:", "88%", "Files:", "Tests:"} {
+		if strings.Contains(out, unwanted) {
+			t.Fatalf("output should not include guessed field %q: %q", unwanted, out)
+		}
+	}
+	if !strings.Contains(out, "### T1 ✓") {
+		t.Fatalf("output should still show task status, got %q", out)
+	}
+}
+
 func TestParallelRequiresBackend(t *testing.T) {
 	defer resetTestHooks()
 	cleanupLogsFn = func() (CleanupStats, error) { return CleanupStats{}, nil }

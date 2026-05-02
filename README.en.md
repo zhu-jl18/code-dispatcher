@@ -41,8 +41,8 @@ Because the meaning of this word fits the core function of this tool:
 `code-dispatcher` is a multi-backend task dispatcher that unifies `codex`, `claude`, and `gemini` AI coding tools. Core capabilities include:
 
 - Multi-backend support: switch between or parallelize multiple AI backends via `--backend`
-- Parallel execution: use `--parallel` for DAG-based concurrent task scheduling
-- Session resume: use `--resume` to continue unfinished tasks after context resets
+- Parallel execution: DAG-based concurrent task scheduling
+- Session resume: continue unfinished tasks after context resets
 - Unified config: single-point configuration via `~/.code-dispatcher/.env` for all backends
 
 Backend positioning (recommended only, can specify freely):
@@ -66,17 +66,12 @@ Note: "Dependency" indicates whether the skill relies on the code-dispatcher CLI
 </tr>
 <tr>
   <td><a href="docs/code-dispatcher.md"><code>code&#8209;dispatcher</code></a></td>
-  <td>Executor usage guide; unified 3 backends <code>codex/claude/gemini</code>; core mechanisms <code>--parallel</code> and <code>--resume</code></td>
+  <td>Executor usage guide; unified 3 backends <code>codex/claude/gemini</code>; core mechanisms: parallel execution and session resume</td>
   <td>Required</td>
 </tr>
 <tr>
   <td><a href="docs/dev.md"><code>dev</code></a></td>
   <td>Requirements clarification → plan → select backend → parallel execution (DAG scheduling) → verification</td>
-  <td>Required</td>
-</tr>
-<tr>
-  <td><a href="docs/code-council.md"><code>code&#8209;council</code></a></td>
-  <td>Multi-perspective parallel code review (2–3 AI reviewers in parallel + host agent final pass)</td>
   <td>Required</td>
 </tr>
 <tr>

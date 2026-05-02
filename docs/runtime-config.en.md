@@ -65,6 +65,8 @@ Prompt files are loaded from:
 
 Supported backends: `codex`, `claude`, `gemini`.
 
+The installer does not overwrite existing prompt files unless `python3 install.py --force` is used. After default prompt contracts change, existing installations must sync these files manually or reinstall with `--force`.
+
 ## 5) Timeout Layering (Important)
 
 There are usually two timeout layers:

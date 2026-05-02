@@ -41,8 +41,8 @@
 `code-dispatcher` 是一个多后端任务分发器，统一调度 `codex`、`claude`、`gemini` 三个 AI 编码工具。核心能力包括：
 
 - 多后端支持：通过 `--backend` 自由切换或并行调用多个 AI 后端
-- 并行执行：使用 `--parallel` 基于 DAG 调度同时运行多个独立任务
-- 会话恢复：使用 `--resume` 在上下文重置后继续执行未完成的任务
+- 并行执行：基于 DAG 调度同时运行多个独立任务
+- 会话恢复：上下文重置后继续执行未完成的任务
 - 统一配置：单点配置 `~/.code-dispatcher/.env` 管理所有后端参数
 
 后端定位（仅推荐，可自由指定）：
@@ -66,17 +66,12 @@
 </tr>
 <tr>
   <td><a href="docs/code-dispatcher.md"><code>code&#8209;dispatcher</code></a></td>
-  <td>执行器使用说明；统一 3 个后端 <code>codex/claude/gemini</code>；核心机制 <code>--parallel</code> 和 <code>--resume</code></td>
+  <td>执行器使用说明；统一 3 个后端 <code>codex/claude/gemini</code>；核心机制并行执行和会话恢复</td>
   <td>必需</td>
 </tr>
 <tr>
   <td><a href="docs/dev.md"><code>dev</code></a></td>
   <td>需求澄清 → 计划 → 选择后端 → 并行执行（DAG 调度） → 验证</td>
-  <td>必需</td>
-</tr>
-<tr>
-  <td><a href="docs/code-council.md"><code>code&#8209;council</code></a></td>
-  <td>多视角并行代码评审（2–3 个 AI reviewer 并行 + host agent 终审）</td>
   <td>必需</td>
 </tr>
 <tr>

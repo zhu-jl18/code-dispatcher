@@ -66,7 +66,7 @@
                      ▼
         ┌─────────────────────────┐
         │ Step 5: 解决 Review 线程 │
-        │ (via GraphQL mutation)   │
+        │ (只能用 GraphQL)        │
         └────────────┬────────────┘
                      │
                      ▼
@@ -102,7 +102,9 @@
 
 line-level comments（逐行评论，带 thread ID）容易看到，但反馈还藏在 review body 里。CodeRabbit 喜欢用 HTML 的 `<details>` 块来整理"🧹 Nitpicks"、"⚠️ Potential Issues"这种，每一条都是独立的问题，即使没有对应的逐行评论也要处理。不然就会漏掉一堆东西。
 
-### 2. 得都等审查机器人审完了才能处理
+这里有个坑：CodeRabbit 有时候**只**把 findings 放 review body 的 `<details>` 块里，一个 line-level comment 都不发。表面看像"无 findings"，实际上全是 findings。不把这种情况当 State A 处理就会直接跳过一堆问题。
+
+### 2. 得等审查机器人审完了才能处理
 
 一个 PR 可能同时有 CodeRabbit 和 Gemini 在审。千万不能其中一个还在审的时候就开始 push 代码，那样之前的等待就白费了，还会重新触发还在审的那个机器人。得全部都完成了（或限流了、或啥都没有了），才能一起处理。
 
@@ -115,6 +117,8 @@ CodeRabbit 是这里面最耗时间的：
 - 限流了就没办法审查，只会留个"limit exceeded"的评论
 
 所以工作流就得严格一点：**处理完所有问题之前坚决不 push**。所有的改动都先在本地攒着，等所有问题都 fix 了或 rebut 了，都回复了，都标记解决了，最后才一次性 push。
+
+如果全部都是 rebut、零代码改动，但还需要触发 bot 重新审查，就用空 commit push：`git commit --allow-empty -m "chore: trigger re-review"`。
 
 ### 4. 限流的时候用备选方案
 
@@ -136,9 +140,23 @@ code-dispatcher --backend codex "Review the PR diff and identify real issues. Ig
 
 代码和 CI 能说明这个反馈是错的、不适用，就明确 rebut；是真实问题，就 fix。
 
+回复用的是三段式结构：**Decision + Reason + Verification**。这个结构不是给自己看的，是给 reviewer bot 下一轮审查时当上下文的——结构化输出让 bot 能快速判断这条 finding 已处理，避免重复报告。
+
 ### 6. 最多处理 3 轮
 
 为了不陷入无限循环，最多就是"处理反馈 → 等审查 → 处理新反馈"这样循环 3 次。第 3 轮以后就不处理了，输出最终总结。
+
+### 7. 线程操作只能走 GraphQL
+
+这是个坑。GitHub REST API 不支持 resolve review thread，拿 unresolved thread IDs 也只能走 GraphQL。REST 只能回复评论，不能标记线程已解决。所以 resolve 这步必须用 GraphQL mutation，thread ID 也得从 GraphQL 查询里拿。
+
+## 规则
+
+- 每个 finding 必须先回复再 resolve
+- 禁止无声 resolve（没回复就标记解决）
+- 有线程就回线程，不另开 top-level comment
+- review body 里的 finding 没有对应线程时，才发 scoped PR comment
+- reviewer 的严重级别标签只是参考，代码和 CI 证据才是最终裁决
 
 ## 自动化
 
