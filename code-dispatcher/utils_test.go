@@ -148,6 +148,12 @@ func TestExtractStructuredReport(t *testing.T) {
 			want:      structuredReport{KeyOutput: "alternative placeholders ignored"},
 		},
 		{
+			name:      "summary containing none alternative text is preserved",
+			message:   "---CODE-DISPATCHER-REPORT---\nSummary: Chose option A | none of the risky alternatives were used\n---END-CODE-DISPATCHER-REPORT---",
+			wantFound: true,
+			want:      structuredReport{KeyOutput: "Chose option A | none of the risky alternatives were used"},
+		},
+		{
 			name:      "malformed values are ignored",
 			message:   "---CODE-DISPATCHER-REPORT---\nCoverage: 120%\nTests: tests were fine\nSummary: done\n---END-CODE-DISPATCHER-REPORT---",
 			wantFound: true,

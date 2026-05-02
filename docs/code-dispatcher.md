@@ -278,7 +278,7 @@ EOF
 
 ### 返回格式
 
-```
+```text
 Agent response text here...
 
 ---

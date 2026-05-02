@@ -328,17 +328,19 @@ func extractStructuredReport(message string, summaryMaxLen int) (structuredRepor
 
 		key = strings.ToLower(strings.TrimSpace(key))
 		value = strings.TrimSpace(value)
-		if structuredReportNone(value) {
-			continue
-		}
-
 		switch key {
 		case "coverage":
-			report.Coverage = extractCoverage(value)
+			if !structuredReportNone(value) {
+				report.Coverage = extractCoverage(value)
+			}
 		case "files":
-			report.FilesChanged = parseStructuredReportFiles(value)
+			if !structuredReportNone(value) {
+				report.FilesChanged = parseStructuredReportFiles(value)
+			}
 		case "tests":
-			report.TestsPassed, report.TestsFailed = extractTestResults(value)
+			if !structuredReportNone(value) {
+				report.TestsPassed, report.TestsFailed = extractTestResults(value)
+			}
 		case "summary":
 			report.KeyOutput = safeTruncate(value, summaryMaxLen)
 		}
