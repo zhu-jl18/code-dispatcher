@@ -1,6 +1,6 @@
 ---
 name: code-dispatcher
-description: Execute code-dispatcher for multi-backend AI code tasks. Use when the user explicitly requests a specific backend (Codex, Claude, or Gemini), mentions code-dispatcher, or when a skill or command definition declares a dependency on this skill. Supports pluggable backends (codex/claude/gemini), parallel task execution with DAG scheduling, session resume, and structured output.
+description: Execute code-dispatcher for multi-backend AI code tasks. Use when the user explicitly requests a specific backend (Codex, Claude, or Gemini), mentions code-dispatcher, or when a skill or command definition declares a dependency on this skill. Supports pluggable backends (codex/claude/gemini), parallel task execution with DAG scheduling, session resume, and compact parallel summaries.
 ---
 
 # code-dispatcher Integration
@@ -62,8 +62,9 @@ code-dispatcher --backend gemini "simple task" [working_dir]
   - In resume mode, do not append `working_dir`; resume follows backend session context.
 
 - Output modes (parallel execution only)
-  - **Summary (default)**: Structured report with changes, output, verification, and review summary.
-  - **Full (`--full-output`)**: Complete task messages. Use only when debugging specific failures.
+  - **Summary (default)**: Compact execution report with task status, log path, and any reported fields such as `Did`, `Files`, `Tests`, or `Coverage`.
+  - Summary mode may omit fields that were not reported by the backend. Do not infer missing work from missing fields alone; inspect `Log:` or use `--full-output` when details matter.
+  - **Full (`--full-output`)**: Complete per-task backend messages. Use when debugging failures, inspecting omitted details, or when raw task output is required.
   - Scope: `--full-output` is valid only with `--parallel`; single-task mode does not support this flag.
   - Backend behavior: mode selection is dispatcher-level and works the same for `codex | claude | gemini`.
 
@@ -77,13 +78,39 @@ code-dispatcher --backend gemini "simple task" [working_dir]
   - Safe behavior: logs for active dispatcher processes are kept; only stale/orphaned logs are deleted.
   - Use this when repeated runs leave many old temp logs behind.
 
-## Return Format:
+## Return Format
 
-```
+Single-task mode returns the backend message directly, followed by `SESSION_ID` when available:
+
+```text
 Agent response text here...
 
 ---
-SESSION_ID: 019a7247-ac9d-71f3-89e2-a823dbd8fd14
+SESSION_ID: <session_id>
+```
+
+Parallel summary mode returns a compact execution report:
+
+```text
+=== Execution Report ===
+N tasks | N passed | N failed
+
+## Task Results
+
+### <task-id> ✓
+Did: ...
+Files: ...
+Tests: ...
+Log: ...
+```
+
+Parallel full mode returns raw per-task backend messages:
+
+```text
+=== Parallel Execution Summary ===
+--- Task: <task-id> ---
+Status: ...
+<raw backend message>
 ```
 
 ## Backends Selection Guide
@@ -226,7 +253,7 @@ EOF
 
 Output styles in parallel mode:
 
-**1) Summary mode (default, no flag)**
+**1) Summary mode (default, no flag)**, optimized for context efficiency. It may show only task status and `Log:` when optional fields are not reported. Use `--full-output` or inspect the task log when you need raw output, omitted details, or debugging context.
 ```bash
 code-dispatcher --parallel --backend codex <<'EOF'
 ---TASK---
@@ -236,7 +263,7 @@ analyze @src and summarize architecture changes
 EOF
 ```
 
-**2) Full mode (`--full-output`)**, mainly for debugging failures or when full per-task messages are required.
+**2) Full mode (`--full-output`)**, for debugging failures, inspecting omitted details, or when full per-task messages are required.
 ```bash
 code-dispatcher --parallel --backend codex --full-output <<'EOF'
 ---TASK---

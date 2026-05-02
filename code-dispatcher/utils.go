@@ -283,6 +283,105 @@ func farewell(name string) string {
 	return "goodbye " + name
 }
 
+const (
+	structuredReportStartMarker = "---CODE-DISPATCHER-REPORT---"
+	structuredReportEndMarker   = "---END-CODE-DISPATCHER-REPORT---"
+	structuredReportFileLimit   = 10
+)
+
+type structuredReport struct {
+	Coverage     string
+	FilesChanged []string
+	TestsPassed  int
+	TestsFailed  int
+	KeyOutput    string
+}
+
+func extractStructuredReport(message string, summaryMaxLen int) (structuredReport, bool) {
+	var report structuredReport
+	if strings.TrimSpace(message) == "" {
+		return report, false
+	}
+
+	start := strings.LastIndex(message, structuredReportStartMarker)
+	if start < 0 {
+		return report, false
+	}
+
+	afterStart := start + len(structuredReportStartMarker)
+	endRel := strings.Index(message[afterStart:], structuredReportEndMarker)
+	if endRel < 0 {
+		return report, false
+	}
+
+	block := message[afterStart : afterStart+endRel]
+	for _, line := range strings.Split(block, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		key, value, ok := strings.Cut(line, ":")
+		if !ok {
+			continue
+		}
+
+		key = strings.ToLower(strings.TrimSpace(key))
+		value = strings.TrimSpace(value)
+		switch key {
+		case "coverage":
+			if !structuredReportNone(value) {
+				report.Coverage = extractCoverage(value)
+			}
+		case "files":
+			if !structuredReportNone(value) {
+				report.FilesChanged = parseStructuredReportFiles(value)
+			}
+		case "tests":
+			if !structuredReportNone(value) {
+				report.TestsPassed, report.TestsFailed = extractTestResults(value)
+			}
+		case "summary":
+			report.KeyOutput = safeTruncate(value, summaryMaxLen)
+		}
+	}
+
+	return report, true
+}
+
+func structuredReportNone(value string) bool {
+	value = strings.ToLower(strings.TrimSpace(value))
+	switch value {
+	case "", "none", "n/a", "na":
+		return true
+	default:
+		return strings.Contains(value, "| none")
+	}
+}
+
+func parseStructuredReportFiles(value string) []string {
+	parts := strings.Split(value, ",")
+	files := make([]string, 0, min(len(parts), structuredReportFileLimit))
+	seen := make(map[string]bool)
+
+	for _, part := range parts {
+		file := strings.TrimSpace(part)
+		file = strings.Trim(file, "`,\"'()[]:")
+		file = strings.TrimPrefix(file, "@")
+		if file == "" || seen[file] {
+			continue
+		}
+
+		files = append(files, file)
+		seen[file] = true
+		if len(files) == structuredReportFileLimit {
+			break
+		}
+	}
+
+	return files
+}
+
 // extractCoverageFromLines extracts coverage from pre-split lines.
 func extractCoverageFromLines(lines []string) string {
 	if len(lines) == 0 {
