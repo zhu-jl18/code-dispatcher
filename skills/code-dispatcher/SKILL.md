@@ -7,7 +7,7 @@ description: Execute code-dispatcher for multi-backend AI code tasks. Use when t
 
 ## Overview
 
-Execute code-dispatcher commands with pluggable AI backends (Codex, Claude, Gemini). Supports file references via `@` syntax, parallel task execution with backend selection, and configurable security controls.
+Execute code-dispatcher commands with pluggable AI backends (Codex, Claude, Gemini). Use it for backend-selected execution, file references via backend-native `@` syntax, parallel task execution, DAG dependencies, and session resume.
 
 ## When to Use
 
@@ -97,19 +97,30 @@ N tasks | N passed | N failed
 
 ## Task Results
 
-### <task-id> ✓
+### <task-id> ✓ <coverage>
 Did: ...
 Files: ...
-Tests: ...
+Tests: ... passed
 Log: ...
+
+## Summary
+- N/N completed successfully
 ```
+
+Failed tasks include `FAILED`, `Exit code`, `Error`, `Detail`, and `Log`. Below-target coverage includes `below <target>%` and `Gap`.
 
 Parallel full mode returns raw per-task backend messages:
 
 ```text
 === Parallel Execution Summary ===
+Total: N | Success: N | Failed: N
+
 --- Task: <task-id> ---
-Status: ...
+Status: SUCCESS
+Coverage: ...
+Session: ...
+Log: ...
+
 <raw backend message>
 ```
 
@@ -337,9 +348,9 @@ EOF
 
 ## Runtime Config and Patterns
 
-- Runtime environment and approval policy are pre-configured by the human/operator.
-- Do not inject, override, or document environment variable values in this skill.
-- Treat dispatcher-internal timeout as a very long fallback configured by the operator.
+- Runtime settings and approval policy are operator-configured before invocation.
+- Do not set or override runtime environment values from this skill.
+- Treat dispatcher-internal timeout as a long fallback configured by the operator.
 - Control actual waiting budget via the host tool-call timeout.
 - Timeout tiers for tool-call invocations:
   - Simple tasks: `600` s (10 minutes) minimum.

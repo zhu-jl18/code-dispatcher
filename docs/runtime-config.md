@@ -16,6 +16,8 @@
 
 `code-dispatcher` 不再从 shell 环境变量读取这些控制项。
 
+只有 `CODE_DISPATCHER_*` 是 dispatcher 控制项。`.env` 中其他键值会注入给后端进程；若同名键也存在于外层 shell，`.env` 值优先。
+
 ## 2）后端审批/跳过审批设置
 
 所有后端默认都使用“绕过审批”模式（不可开关）：
@@ -36,12 +38,12 @@
   - 调度器硬上限：`100`
 
 - `CODE_DISPATCHER_ASCII_MODE`
-  - `true`：使用 ASCII 状态码（`PASS/WARN/FAIL`）
-  - 其他：使用 Unicode 状态符号
+  - `1` / `true` / `yes` / `on`：使用 ASCII 状态码（`PASS/WARN/FAIL`）
+  - `0` / `false` / `no` / `off` 或未知值：使用 Unicode 状态符号
 
 - `CODE_DISPATCHER_LOGGER_CLOSE_TIMEOUT_MS`
   - 默认：`5000`
-  - `0`：表示无限等待
+  - `<= 0`：表示无限等待
 
 ### 后端模型覆盖
 

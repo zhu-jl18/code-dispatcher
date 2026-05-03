@@ -66,7 +66,7 @@
                      ▼
         ┌─────────────────────────┐
         │ Step 5: 解决 Review 线程 │
-        │ (只能用 GraphQL)        │
+        │ (resolve 只能用 GraphQL) │
         └────────────┬────────────┘
                      │
                      ▼
@@ -146,9 +146,9 @@ code-dispatcher --backend codex "Review the PR diff and identify real issues. Ig
 
 为了不陷入无限循环，最多就是"处理反馈 → 等审查 → 处理新反馈"这样循环 3 次。第 3 轮以后就不处理了，输出最终总结。
 
-### 7. 线程操作只能走 GraphQL
+### 7. Resolve Review 线程只能走 GraphQL
 
-这是个坑。GitHub REST API 不支持 resolve review thread，拿 unresolved thread IDs 也只能走 GraphQL。REST 只能回复评论，不能标记线程已解决。所以 resolve 这步必须用 GraphQL mutation，thread ID 也得从 GraphQL 查询里拿。
+这是个坑。GitHub REST API 可以回复 review comment，但不能标记 review thread 已解决。所以 resolve 这步必须用 GraphQL mutation，thread ID 也得从 GraphQL 查询里拿。
 
 ## 规则
 

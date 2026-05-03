@@ -67,13 +67,13 @@ Output path: `.specs/{feature_name}/dev-plan.md`
 Build ONE `--parallel` config covering all tasks from dev-plan.md. Submit once via code-dispatcher in a shell.
 
 **Backend routing by task type**:
-- `default` → codex (fallback: codex → claude → gemini)
-- `ui` → gemini (fallback: codex → claude → gemini)
-- `quick-fix` → claude (fallback: codex → claude → gemini)
-- `docs` → claude (fallback: claude → codex → gemini)
+- `default` → codex; fallback `codex → claude → gemini`
+- `ui` → gemini; fallback `gemini → codex → claude`
+- `quick-fix` → claude; fallback `claude → codex → gemini`
+- `docs` → claude; fallback `claude → codex → gemini`
 - Missing type → treat as `default`
 
-Fallback only considers `allowed_backends`.
+Choose the first backend in the task type's fallback chain that is present in `allowed_backends`.
 
 ```bash
 code-dispatcher --parallel --backend {analysis_backend} <<'EOF'

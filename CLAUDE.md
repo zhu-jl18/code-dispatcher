@@ -1,7 +1,7 @@
 # code-dispatcher Project Instructions
 
 ## Project Summary
-code-dispatcher is a multi-backend AI coding toolkit: a Go CLI that dispatches tasks to `codex`/`claude`/`gemini` backends, paired with reusable Skills for structured workflows such as planning, parallel execution, iterative waves, multi-reviewer code review, bot-review triage, and long-running task orchestration.
+code-dispatcher is a multi-backend AI coding toolkit: a Go CLI that dispatches tasks to `codex`/`claude`/`gemini` backends, paired with reusable Skills for dispatcher execution, end-to-end development orchestration, bot-review triage, and long-running task workflows.
 
 ## Tech Stack
 - Go: main dispatcher program

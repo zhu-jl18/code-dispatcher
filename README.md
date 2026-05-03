@@ -85,7 +85,7 @@
 
 ### Step 1: Code Dispatcher CLI 相关核心安装
 
-安装脚本做了全平台适配：WSL2/Linux + macOS + Windows。默认会从 GitHub Release 的 `latest` 标签下载当前平台二进制：
+安装脚本支持 Linux x86_64、Windows x86_64、macOS Apple Silicon。默认会从 GitHub Release 的 `latest` 标签下载当前平台二进制：
 
 ```bash
 python3 install.py
@@ -106,7 +106,7 @@ python3 install.py --skip-dispatcher
 
 特别需要注意的是：不同平台下 code agent 的 shell 环境并不完全一致，不能默认都按同一套假设执行。
 
-`install.py` 会直接输出常见 shell 的持久化设置命令（Windows：PowerShell、CMD、Git Bash；非 Windows：Bash、Zsh、Fish），对应如下：
+`install.py` 会直接输出常见 shell 的持久化设置命令（Windows：PowerShell、CMD、Git Bash；非 Windows：Bash、Zsh、Fish）。下面是默认安装路径示例：
 
 ```bash
 Windows PowerShell:
@@ -153,7 +153,7 @@ echo 'set -gx PATH "$HOME/.code-dispatcher/bin" $PATH' >> ~/.config/fish/config.
 /dev "我想实现一个xxx"
 
 # 特定关键词触发
-use dispatcher --codex to fix the bug we just discussed
+use dispatcher with codex to fix the bug we just discussed
 ```
 
 

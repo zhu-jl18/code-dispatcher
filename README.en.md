@@ -85,7 +85,7 @@ Note: "Dependency" indicates whether the skill relies on the code-dispatcher CLI
 
 ### Step 1: Code Dispatcher CLI Core Installation
 
-The installation script is cross-platform: WSL2/Linux + macOS + Windows. By default, it downloads the current platform binary from GitHub Release `latest`:
+The installation script supports Linux x86_64, Windows x86_64, and macOS Apple Silicon. By default, it downloads the current platform binary from GitHub Release `latest`:
 
 ```bash
 python3 install.py
@@ -106,7 +106,7 @@ The script installs the following:
 
 **Important**: Different platforms have different code agent shell environments, so they cannot all be assumed to follow the same execution pattern.
 
-`install.py` outputs persistence commands for common shells (Windows: PowerShell, CMD, Git Bash; Non-Windows: Bash, Zsh, Fish):
+`install.py` outputs persistence commands for common shells (Windows: PowerShell, CMD, Git Bash; Non-Windows: Bash, Zsh, Fish). The examples below use the default install path:
 
 ```bash
 Windows PowerShell:
@@ -153,7 +153,7 @@ The `dev` skill is recommended to be used with `templates/dev-skill-constraint.m
 /dev "I want to implement X"
 
 # Keyword trigger
-use dispatcher --codex to fix the bug we just discussed
+use dispatcher with codex to fix the bug we just discussed
 ```
 
 

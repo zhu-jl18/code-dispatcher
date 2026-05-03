@@ -16,6 +16,8 @@ All runtime options are loaded from:
 
 `code-dispatcher` no longer reads these control items from shell environment variables.
 
+Only `CODE_DISPATCHER_*` keys are dispatcher control keys. Other keys in `.env` are injected into backend processes; when the same key exists in the inherited shell environment, the `.env` value wins.
+
 ## 2) Backend Approval / Bypass Approval Settings
 
 All backends run with "bypass approval" mode by default (not toggleable):
@@ -36,12 +38,12 @@ All backends run with "bypass approval" mode by default (not toggleable):
   - Dispatcher hard cap: `100`
 
 - `CODE_DISPATCHER_ASCII_MODE`
-  - `true`: use ASCII status codes (`PASS/WARN/FAIL`)
-  - Other: use Unicode status symbols
+  - `1` / `true` / `yes` / `on`: use ASCII status codes (`PASS/WARN/FAIL`)
+  - `0` / `false` / `no` / `off` or unknown values: use Unicode status symbols
 
 - `CODE_DISPATCHER_LOGGER_CLOSE_TIMEOUT_MS`
   - Default: `5000`
-  - `0`: means wait indefinitely
+  - `<= 0`: means wait indefinitely
 
 ### Backend Model Override
 

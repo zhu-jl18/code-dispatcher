@@ -98,23 +98,27 @@ Bot review is in terminal state AND:
 Only then: print "CodeRabbit: no findings" and exit cleanly. Do NOT poll.
 **If the review body contains `<details>` blocks with findings but zero line-level comments, this is NOT State D — it's State A with body-only findings. Process them.**
 
-Get unresolved thread IDs via GraphQL (needed for resolving):
+Get unresolved thread IDs via GraphQL for resolving. Review threads are paginated; repeat the query with `after: <endCursor>` until `hasNextPage` is false.
+
 ```bash
 # Parse owner/repo from $REPO (e.g., "owner/repo" → owner="owner", name="repo")
 OWNER="${REPO%/*}"
 NAME="${REPO#*/}"
 
 gh api graphql -f query='
-query($owner: String!, $name: String!, $pr: Int!) {
+query($owner: String!, $name: String!, $pr: Int!, $endCursor: String) {
   repository(owner: $owner, name: $name) {
     pullRequest(number: $pr) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: $endCursor) {
         nodes { id isResolved comments(first: 1) { nodes { databaseId author { login } body } } }
+        pageInfo { hasNextPage endCursor }
       }
     }
   }
 }' -F owner="$OWNER" -F name="$NAME" -F pr="$PR"
 ```
+
+For later pages, pass the previous `pageInfo.endCursor` as `-F endCursor="$END_CURSOR"`.
 
 ### Step 2: Verify Each Finding
 For every unresolved bot finding, before deciding fix or rebut:
@@ -217,7 +221,7 @@ If a bot comment references a file that doesn't exist locally:
 
 ### Comment Without Line Number
 Some bot comments may lack line context:
-- Use PR diff to locate relevant code: `gh pr diff $PR -- <path>`
+- Use `gh pr diff $PR --name-only` to list changed files, then inspect the relevant local file or full patch with `gh pr diff $PR --patch`.
 - If still unclear: reply in-thread when possible; otherwise post one scoped PR comment. **Then continue** — do not resolve unclear threads but do not stop the workflow either.
 
 ### Thread Resolution Fails

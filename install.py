@@ -7,9 +7,9 @@ Installs:
 - ~/.code-dispatcher/.env template for runtime configuration
 
 Targets:
-- WSL2/Linux
-- macOS (Apple Silicon)
-- Windows
+- Linux x86_64
+- macOS Apple Silicon
+- Windows x86_64
 """
 
 from __future__ import annotations
@@ -261,8 +261,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print("")
     print("Manual setup required:")
-    print("- Copy dev/skill markdown files manually into each target CLI root or project scope as needed.")
-    print("- This installer does not auto-copy skills/commands/agents into Claude/Codex/iFlow/Amp roots.")
+    print("- Copy selected skills/<skill-name>/ directories into each target CLI skills directory as needed.")
+    print("- This installer does not auto-copy skills into Claude Code/Codex CLI/OpenCode/Gemini CLI roots.")
 
     if router_path is not None:
         _print_path_hint(install_dir / "bin")
